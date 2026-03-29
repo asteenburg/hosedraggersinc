@@ -2,11 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // Added for redirection
 import { useCart } from "@/app/context/CartContext";
 import SquarePaymentForm from "@/components/SquarePaymentForm";
 
 export default function CartPage() {
   const { cart, total, updateQuantity, removeFromCart, clearCart } = useCart();
+  const router = useRouter();
+
+  // The logic to run once the Square payment is successful
+  const handlePaymentSuccess = () => {
+    alert("Payment successful! Thank you for your order.");
+    clearCart();
+    // Optional: router.push('/success');
+  };
 
   return (
     <main className='min-h-screen bg-gray-50 p-6 lg:p-20'>
@@ -81,7 +90,11 @@ export default function CartPage() {
               <span className='font-semibold'>${(total / 100).toFixed(2)}</span>
             </p>
 
-            <SquarePaymentForm amount={total} />
+            {/* Now passing the required onPaymentSuccess prop */}
+            <SquarePaymentForm
+              amount={total}
+              onPaymentSuccess={handlePaymentSuccess}
+            />
 
             <button
               onClick={clearCart}
