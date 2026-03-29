@@ -19,7 +19,7 @@ import useSmoothScroll from "@/hooks/useSmoothScroll"; // Added useSmoothScroll 
 
 // Asset Imports
 import HoseDraggersHero from "../public/images/hose-draggers-hero.png";
-import HoseDraggerHelmet from "../public/images/7AD82404-B265-4DCB-97FE-6785D25DC9C7.png";
+import HoseDraggerHelmet from "../public/images/hose-dragger-helmet.png";
 import DiaDeMuertos from "../public/images/dia-de-muertos.png";
 import DiaDeMuertosCigar from "../public/images/dia-de-muertos-cigar.png";
 import DiaDeMuertosNozzle from "../public/images/dia-de-muertos-nozzle.png";
