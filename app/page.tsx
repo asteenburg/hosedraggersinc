@@ -282,7 +282,7 @@ export default function Home() {
         <div className='relative mt-24 z-30 px-6 lg:pl-20 lg:w-[45%] text-center lg:text-left'>
           <h1 className='text-6xl lg:text-[8rem] xl:text-[10rem] text-white font-black tracking-tighter uppercase leading-[0.8]'>
             Stickers <br /> That Match Your <br />
-            <span className='font-[family-name:var(--font-my-custom-font)] text-orange-500 normal-case text-8xl lg:text-[12rem] xl:text-[14rem] inline-block -rotate-3 mt-4'>
+            <span className='HoseFont.style.fontFamily text-orange-500 normal-case text-8xl lg:text-[12rem] xl:text-[14rem] inline-block -rotate-3 mt-4'>
               Vibe
             </span>
           </h1>
