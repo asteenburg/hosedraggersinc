@@ -29,9 +29,9 @@ import DiaDeMuertosPoint from "../public/images/dia-de-muertos-point.png";
 import DiaDeMuertosAxeW from "../public/images/dia-de-muertos-axe-white.png";
 import DiaDeMuertosPointing from "@/public/images/dia-de-muertos-pointing.png"; // Added DiaDeMuertosPointing
 
-const myCustomFont = LocalFont({
-  src: "../public/fonts/Billy_Ohio.ttf",
-  variable: "--font-my-custom-font",
+const HoseFont = LocalFont({
+  src: "./fonts/Billy_Ohio.ttf", // Make sure this is ONLY ./fonts
+  variable: "--font-hose-draggers",
 });
 
 const products = [
@@ -137,7 +137,7 @@ function DCDescription() {
         <h2
           className='mb-6 text-orange-600'
           style={{
-            fontFamily: myCustomFont.style.fontFamily,
+            fontFamily: HoseFont.style.fontFamily,
             fontSize: "4.5rem",
             lineHeight: "1",
           }}
@@ -234,7 +234,7 @@ export default function Home() {
 
   return (
     <main
-      className={`min-h-screen bg-gradient-to-b from-black text-gray-900 ${myCustomFont.variable} selection:bg-orange-500 selection:text-white`}
+      className={`min-h-screen bg-gradient-to-b from-black text-gray-900 ${HoseFont.variable} selection:bg-orange-500 selection:text-white`}
     >
       {/* FLOATING CART UI (Z-INDEX 51+) */}
       <div className='fixed bottom-8 right-8 z-[51] flex flex-col items-end gap-4'>

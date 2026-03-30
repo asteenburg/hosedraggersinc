@@ -15,9 +15,9 @@ import {
 import ProductModal from "@/components/ProductModal";
 import CartDrawer from "@/components/CartDrawer";
 
-const myCustomFont = LocalFont({
-  src: "../../public/fonts/Billy_Ohio.ttf",
-  variable: "--font-my-custom-font",
+const HoseFont = LocalFont({
+  src: "../fonts/Billy_Ohio.ttf", // Make sure this is ONLY ./fonts
+  variable: "--font-hose-draggers",
 });
 
 /* ---------------- DATA ---------------- */
@@ -211,7 +211,7 @@ export default function ShopPage() {
 
   return (
     <main
-      className={`min-h-screen bg-gray-100 text-gray-900 ${myCustomFont.variable} selection:bg-orange-500`}
+      className={`min-h-screen bg-gray-100 text-gray-900 ${HoseFont.variable} selection:bg-orange-500`}
     >
       {/* FLOATING UI */}
       <div className='fixed bottom-8 right-8 z-[51] flex flex-col items-end gap-4'>
