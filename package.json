@@ -15,6 +15,7 @@
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "square": "^43.2.1"
+    "canvas-confetti": "^1.9.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
