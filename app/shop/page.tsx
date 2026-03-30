@@ -16,7 +16,7 @@ import ProductModal from "@/components/ProductModal";
 import CartDrawer from "@/components/CartDrawer";
 
 const myCustomFont = LocalFont({
-  src: "../../public/fonts/billy ohio.ttf",
+  src: "../../public/fonts/Billy_Ohio.ttf",
   variable: "--font-my-custom-font",
 });
 
