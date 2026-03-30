@@ -3,72 +3,64 @@ import crypto from "crypto";
 
 export async function POST(req: Request) {
   try {
-    const { amount } = await req.json();
+    const { sourceId, amount, email, isDonating } = await req.json();
 
-    if (!amount || amount <= 0) {
-      return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
+    // Basic validation
+    if (!sourceId || !amount || amount <= 0) {
+      return NextResponse.json({ error: "Invalid payment data" }, { status: 400 });
     }
 
     const token = process.env.SQUARE_ACCESS_TOKEN;
-    const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID;
-
-    if (!token || !locationId) {
-      console.error("❌ Missing Square credentials", { token, locationId });
-      return NextResponse.json(
-        { error: "Missing Square credentials" },
-        { status: 500 },
-      );
+    
+    // Check for credentials
+    if (!token) {
+      console.error("❌ Missing SQUARE_ACCESS_TOKEN");
+      return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
+
+    // Use 'connect.squareup.com' for LIVE, 'connect.squareupsandbox.com' for TESTING
+    const squareUrl = "https://connect.squareup.com/v2/payments";
 
     const body = {
       idempotency_key: crypto.randomUUID(),
-      quick_pay: {
-        name: "Cart Total",
-        price_money: {
-          amount: amount,
-          currency: "CAD",
-        },
-        location_id: locationId,
+      source_id: sourceId, // The card token from your frontend
+      amount_money: {
+        amount: amount, // Amount in cents
+        currency: "CAD", // Matching your previous currency
       },
+      buyer_email_address: email,
+      note: isDonating ? "Includes $5 Donation" : "Sticker Order",
     };
 
-    const response = await fetch(
-      "https://connect.squareupsandbox.com/v2/online-checkout/payment-links",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
+    const response = await fetch(squareUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        "Square-Version": "2024-10-17", // Good practice to include version
       },
-    );
+      body: JSON.stringify(body),
+    });
 
     const data = await response.json();
-    console.log("Square API response:", data);
 
     if (!response.ok) {
+      console.error("❌ Square API error:", data.errors);
       return NextResponse.json(
-        { error: "Square API error", details: data },
-        { status: 500 },
+        { error: data.errors?.[0]?.detail || "Payment failed" },
+        { status: 400 }
       );
     }
 
-    const checkoutUrl = data.payment_link?.url;
-    if (!checkoutUrl) {
-      console.error("❌ No checkout URL returned", data);
-      return NextResponse.json(
-        { error: "Checkout URL not returned by Square" },
-        { status: 500 },
-      );
-    }
+    // Success!
+    console.log("✅ Payment Created:", data.payment.id);
+    return NextResponse.json({ success: true, paymentId: data.payment.id });
 
-    return NextResponse.json({ checkoutUrl });
   } catch (error: any) {
-    console.error("Unexpected error:", error);
+    console.error("Unexpected server error:", error);
     return NextResponse.json(
-      { error: error.message || "Server error" },
-      { status: 500 },
+      { error: "Internal Server Error" },
+      { status: 500 }
     );
   }
 }
