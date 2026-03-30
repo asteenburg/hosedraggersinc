@@ -1,38 +1,36 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { useState, useEffect, useRef } from "react"; // Added useRef
-import { useCart } from "./context/CartContext";
-import ProductModal from "../components/ProductModal";
-import CartDrawer from "../components/CartDrawer";
+import Image, { StaticImageData } from "next/image";
+import { useState, useMemo } from "react";
+import { useCart } from "@/app/context/CartContext";
 import LocalFont from "next/font/local";
 import {
   ShoppingCart,
   Heart,
-  Droplet,
-  Sun,
-  HandCoins,
-  Check,
-} from "lucide-react"; // Added new icons
-import useSmoothScroll from "@/hooks/useSmoothScroll"; // Added useSmoothScroll hook
-
-// Asset Imports
-import HoseDraggersHero from "../public/images/hose-draggers-hero.png";
-import HoseDraggerHelmet from "../public/images/hose-dragger-helmet.png";
-import DiaDeMuertos from "../public/images/dia-de-muertos.png";
-import DiaDeMuertosCigar from "../public/images/dia-de-muertos-cigar.png";
-import DiaDeMuertosNozzle from "../public/images/dia-de-muertos-nozzle.png";
-import DiaDeMuertosChariot from "../public/images/dia-de-muertos-chariot.png";
-import DiaDeMuertosAxe from "../public/images/dia-de-muertos-axe.png";
-import DiaDeMuertosPoint from "../public/images/dia-de-muertos-point.png";
-import DiaDeMuertosAxeW from "../public/images/dia-de-muertos-axe-white.png";
-import DiaDeMuertosPointing from "@/public/images/dia-de-muertos-pointing.png"; // Added DiaDeMuertosPointing
+  Zap,
+  Plus,
+  ChevronDown,
+  CheckCircle2,
+} from "lucide-react";
+import ProductModal from "@/components/ProductModal";
+import CartDrawer from "@/components/CartDrawer";
 
 const myCustomFont = LocalFont({
-  src: "/public/fonts/Billy_Ohio.ttf",
+  src: "../..//public/fonts/Billy_Ohio.ttf",
   variable: "--font-my-custom-font",
 });
+
+/* ---------------- DATA ---------------- */
+import HoseDraggerHelmet from "@/public/images/hose-dragger-helmet.png";
+import DiaDeMuertos from "@/public/images/dia-de-muertos.png";
+import DiaDeMuertosCigar from "@/public/images/dia-de-muertos-cigar.png";
+import DiaDeMuertosNozzle from "@/public/images/dia-de-muertos-nozzle.png";
+import DiaDeMuertosChariot from "@/public/images/dia-de-muertos-chariot.png";
+import DiaDeMuertosAxe from "@/public/images/dia-de-muertos-axe.png";
+import DiaDeMuertosAxeW from "@/public/images/dia-de-muertos-axe-white.png";
+import DiaDeMuertosPoint from "@/public/images/dia-de-muertos-point.png";
+import Dalmation from "@/public/images/dalmatian.png";
+import DalmationHydrant from "@/public/images/dalmation-hydrant.png";
 
 const products = [
   {
@@ -40,345 +38,294 @@ const products = [
     name: "Hose Dragger Helmet",
     price: 300,
     image: HoseDraggerHelmet,
+    size: '3"x3"',
+    options: ["Die-Cut Single", "Kiss-Cut Sheet"],
+    upcharge: 200, // Additional 200 ($2.00) for Kiss-Cut
   },
   {
     id: "ddlmuertos",
     name: "Dia De Los Muertos",
     price: 300,
     image: DiaDeMuertos,
+    size: '3"x3"',
   },
   {
     id: "ddlmuertos-cigar",
     name: "Dia De Los Muertos (Cigar)",
     price: 350,
     image: DiaDeMuertosCigar,
+    size: '3"x3"',
   },
   {
     id: "ddlmuertos-nozzle",
     name: "Dia De Los Muertos (Nozzle)",
     price: 350,
     image: DiaDeMuertosNozzle,
+    size: '3"x3"',
   },
   {
     id: "ddlmuertos-chariot",
     name: "Dia De Los Muertos (Mahalo)",
     price: 400,
     image: DiaDeMuertosChariot,
+    size: '4"x3"',
   },
   {
     id: "ddlmuertos-axe",
     name: "Dia De Los Muertos (Axe)",
     price: 400,
     image: DiaDeMuertosAxe,
+    size: '3"x3"',
   },
   {
     id: "ddlmuertos-axe-white",
     name: "Dia De Los Muertos (Axe)",
     price: 400,
     image: DiaDeMuertosAxeW,
+    size: '3"x3"',
   },
   {
     id: "ddlmuertos-pointing",
     name: "Dia De Los Muertos (There)",
     price: 400,
     image: DiaDeMuertosPoint,
+    size: '3"x3"',
   },
 ];
 
-// Re-defined DCDescription directly in this file to show all changes
-function DCDescription() {
-  const sectionRef = useRef<HTMLDivElement | null>(null);
-  const scrollY = useSmoothScroll();
-  const [opacity, setOpacity] = useState(0);
+const kidsStickers = [
+  {
+    id: "Dalmation",
+    name: "Fire Dalmatian",
+    price: 200,
+    image: Dalmation,
+    size: '2"x2"',
+  },
+  {
+    id: "Dalmation-Hydrant",
+    name: "Hydrant Dalmatian",
+    price: 200,
+    image: DalmationHydrant,
+    size: '2"x2"',
+  },
+];
 
-  useEffect(() => {
-    if (!sectionRef.current) return;
+/* ---------------- COMPONENTS ---------------- */
 
-    const rect = sectionRef.current.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
+function BundleBuilder({ items }: { items: any[] }) {
+  const { addToCart } = useCart();
+  const [selected, setSelected] = useState<any[]>([]);
+  const BUNDLE_PRICE = 1000; // $10.00 deal
 
-    // sectionTop relative to the page
-    const sectionTop = rect.top + scrollY;
-
-    // Define start/end of fade
-    const start = scrollY + windowHeight; // start fading in
-    const end = scrollY + windowHeight * 0.2; // fully visible
-
-    const visible = Math.min(
-      Math.max((start - sectionTop) / (start - end), 0),
-      1,
-    );
-    setOpacity(visible);
-  }, [scrollY]);
+  const handleAddBundle = () => {
+    const names = selected.map((s) => s.name).join(", ");
+    addToCart({
+      id: `bundle-${Date.now()}`,
+      name: `Sticker 3-Pack: ${names}`,
+      price: BUNDLE_PRICE,
+      image: selected[0].image,
+    });
+    setSelected([]);
+  };
 
   return (
-    <section
-      ref={sectionRef}
-      className='flex flex-col md:flex-row px-6 bg-white/30 backdrop-blur-xl lg:px-20 mt-20 py-16 gap-12 items-center rounded-[2rem] border border-white/40 shadow-2xl max-w-7xl md:mx-8 mx-auto mb-20'
-      style={{
-        opacity: opacity,
-        transition: "opacity 0.1s ease-out",
-      }}
-    >
-      {/* Image Container with Glow */}
-      <div className='flex-shrink-0 relative group'>
-        <div className='absolute -inset-4 bg-orange-500/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity' />
-        <Image
-          src={DiaDeMuertosPointing}
-          alt='Dia De Muertos Pointing'
-          width={300}
-          height={300}
-          className='rounded-lg relative z-10 drop-shadow-2xl'
+    <section className='bg-black rounded-[3rem] p-8 md:p-16 my-20 text-white relative overflow-hidden border border-orange-500/20'>
+      <div className='absolute -right-20 -top-20 opacity-10 rotate-12'>
+        <Zap
+          size={400}
+          fill='white'
         />
       </div>
 
-      {/* Text Content */}
-      <div className='relative z-10'>
-        <h2
-          className='mb-6 text-orange-600'
-          style={{
-            fontFamily: myCustomFont.style.fontFamily,
-            fontSize: "4.5rem",
-            lineHeight: "1",
-          }}
-        >
-          The Secret Sauce
-        </h2>
+      <div className='relative z-10 flex flex-col lg:flex-row gap-12'>
+        <div className='lg:w-1/2'>
+          <h2 className='text-5xl font-black uppercase tracking-tighter leading-none italic'>
+            Pack <span className='text-orange-500'>Savings</span>
+          </h2>
+          <p className='text-gray-400 mt-4 font-bold uppercase tracking-widest text-xs'>
+            Build a 3-sticker haul for just $10.00
+          </p>
 
-        <div className='space-y-6'>
-          <div className='bg-white/40 p-4 rounded-2xl border border-white/20'>
-            <h4 className='text-xs font-black uppercase tracking-[0.2em] mb-2 text-orange-600'>
-              Die-Cut Singles
-            </h4>
-            <p className='max-w-xl tracking-wide font-semibold text-gray-800 leading-relaxed'>
-              Printed with top quality inks on durable vinyl to ensure they are
-              waterproof, weather resistant, dishwasher and microwave safe.
-            </p>
+          <div className='flex gap-4 mt-8'>
+            {[0, 1, 2].map((slot) => (
+              <div
+                key={slot}
+                className={`w-24 h-24 rounded-2xl border-2 flex items-center justify-center relative bg-white/5 transition-all ${selected[slot] ? "border-orange-500 scale-105" : "border-dashed border-gray-700"}`}
+              >
+                {selected[slot] ? (
+                  <Image
+                    src={selected[slot].image}
+                    alt='slot'
+                    fill
+                    className='p-3 object-contain'
+                  />
+                ) : (
+                  <span className='text-gray-800 font-black text-2xl'>
+                    {slot + 1}
+                  </span>
+                )}
+              </div>
+            ))}
           </div>
 
-          <div className='bg-white/40 p-4 rounded-2xl border border-white/20'>
-            <h4 className='text-xs font-black uppercase tracking-[0.2em] mb-2 text-orange-600'>
-              Kiss-Cut Sheets
-            </h4>
-            <p className='max-w-xl tracking-wide font-semibold text-gray-800 leading-relaxed'>
-              The blade cuts only through the vinyl layer, leaving a paper
-              backing for an extra border—making them super easy to peel and
-              apply.
-            </p>
-          </div>
+          <button
+            disabled={selected.length < 3}
+            onClick={handleAddBundle}
+            className='mt-10 bg-orange-600 hover:bg-white hover:text-black disabled:opacity-20 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all w-full md:w-auto'
+          >
+            Add Pack to Haul
+          </button>
         </div>
 
-        {/* Technical Specs Section */}
-        <div className='mt-10 bg-black/70 backdrop-blur-lg p-6 rounded-2xl border border-white/20 text-white'>
-          <h3 className='text-lg font-black uppercase tracking-widest mb-4 text-orange-400'>
-            Built to Endure
-          </h3>
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='flex items-center gap-3'>
-              <Droplet
-                size={24}
-                className='text-blue-400'
-              />
-              <span className='font-semibold text-gray-200'>Waterproof</span>
-            </div>
-            <div className='flex items-center gap-3'>
-              <Sun
-                size={24}
-                className='text-yellow-400'
-              />
-              <span className='font-semibold text-gray-200'>
-                Weather Resistant
-              </span>
-            </div>
-            <div className='flex items-center gap-3'>
-              <HandCoins
-                size={24}
-                className='text-green-400'
-              />
-              <span className='font-semibold text-gray-200'>
-                Dishwasher Safe
-              </span>
-            </div>
-            <div className='flex items-center gap-3'>
-              <Check
-                size={24}
-                className='text-purple-400'
-              />
-              <span className='font-semibold text-gray-200'>
-                Microwave Safe
-              </span>
-            </div>
-          </div>
+        <div className='lg:w-1/2 grid grid-cols-4 gap-3 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-orange-500'>
+          {items.map((item) => (
+            <button
+              key={item.id}
+              onClick={() =>
+                selected.length < 3 && setSelected([...selected, item])
+              }
+              className='bg-gray-900 rounded-xl p-2 hover:bg-orange-500/20 transition-colors'
+            >
+              <div className='relative aspect-square w-full'>
+                <Image
+                  src={item.image}
+                  alt='item'
+                  fill
+                  className='object-contain'
+                />
+              </div>
+            </button>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-export default function Home() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+/* ---------------- MAIN PAGE ---------------- */
+
+export default function ShopPage() {
+  const { cart, toggleDonation, isDonating } = useCart();
   const [isCartOpen, setIsCartOpen] = useState(false);
-
-  const { cart, isDonating, toggleDonation } = useCart();
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 2;
-      const y = (e.clientY / window.innerHeight - 0.5) * 2;
-      setMousePos({ x, y });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
   return (
     <main
-      className={`min-h-screen bg-gradient-to-b from-black text-gray-900 ${myCustomFont.variable} selection:bg-orange-500 selection:text-white`}
+      className={`min-h-screen bg-gray-100 text-gray-900 ${myCustomFont.variable} selection:bg-orange-500`}
     >
-      {/* FLOATING CART UI (Z-INDEX 51+) */}
+      {/* FLOATING UI */}
       <div className='fixed bottom-8 right-8 z-[51] flex flex-col items-end gap-4'>
         <button
           onClick={toggleDonation}
-          className={`flex items-center gap-3 p-3 rounded-2xl shadow-xl border transition-all ${isDonating ? "bg-orange-500 border-orange-400 text-white" : "bg-white border-gray-100 text-gray-600 hover:bg-gray-50"}`}
+          className={`p-3 rounded-2xl shadow-xl border flex items-center gap-3 transition-all ${isDonating ? "bg-orange-500 text-white" : "bg-white text-gray-600"}`}
         >
           <Heart
             size={18}
             fill={isDonating ? "white" : "none"}
           />
-          <span className='text-[10px] font-bold uppercase tracking-tighter'>
-            {isDonating ? "Supporting" : "Support the Crew"}
+          <span className='text-[10px] font-bold uppercase tracking-widest'>
+            {isDonating ? "Supporting" : "Support?"}
           </span>
         </button>
-
         <button
           onClick={() => setIsCartOpen(true)}
-          className='bg-black text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center gap-2 group relative'
+          className='bg-black text-white p-4 rounded-full shadow-2xl relative'
         >
           <ShoppingCart size={24} />
           {cart.length > 0 && (
-            <span className='absolute -top-2 -right-2 bg-orange-600 text-white text-[10px] w-6 h-6 rounded-full flex items-center justify-center font-bold border-2 border-white'>
-              {cart.reduce((acc, item) => acc + item.quantity, 0)}
+            <span className='absolute -top-2 -right-2 bg-orange-600 w-6 h-6 rounded-full text-[10px] flex items-center justify-center font-bold border-2 border-white'>
+              {cart.reduce((a, b) => a + b.quantity, 0)}
             </span>
           )}
         </button>
       </div>
 
-      {/* CART DRAWER (Z-INDEX 55) */}
       <CartDrawer
         open={isCartOpen}
         onClose={() => setIsCartOpen(false)}
       />
 
-      {/* MEGA HERO SECTION */}
-      <section className='relative min-h-[90vh] flex flex-col lg:flex-row items-center justify-between overflow-hidden bg-black pt-20 lg:pt-0'>
-        <div
-          className='absolute top-0 right-0 w-[800px] h-[800px] bg-orange-600/10 blur-[150px] rounded-full transition-transform duration-700 ease-out'
-          style={{
-            transform: `translate(${mousePos.x * -30}px, ${mousePos.y * -30}px)`,
-          }}
-        />
-
-        <div className='relative mt-24 z-30 px-6 lg:pl-20 lg:w-[45%] text-center lg:text-left'>
-          <h1 className='text-6xl lg:text-[8rem] xl:text-[10rem] text-white font-black tracking-tighter uppercase leading-[0.8]'>
-            Stickers <br /> That Match Your <br />
-            <span className='font-[family-name:var(--font-my-custom-font)] text-orange-500 normal-case text-8xl lg:text-[12rem] xl:text-[14rem] inline-block -rotate-3 mt-4'>
-              Vibe
-            </span>
-          </h1>
-          <p className='mt-12 text-gray-400 text-lg lg:text-xl font-bold uppercase tracking-[0.3em] max-w-md mx-auto lg:mx-0'>
-            Premium High-Heat Decals
-          </p>
-
-          <Link href='/shop'>
-            <button className='mt-8 mb-24 px-10 py-5 bg-orange-600 text-white font-black uppercase tracking-[0.2em] rounded-full transition-all hover:bg-white hover:text-black hover:scale-110 active:scale-95 shadow-2xl'>
-              Shop Stickers
-            </button>
-          </Link>
-        </div>
-
-        <div className='relative z-20 lg:w-[60%] h-full flex items-center lg:justify-end mt-12 lg:mt-0'>
-          <div
-            className='relative w-full aspect-square lg:h-[95vh] lg:w-[120%] lg:-mr-[15%] transition-transform duration-300 ease-out'
-            style={{
-              transform: `translate(${mousePos.x * 8}px, ${mousePos.y * 8}px) rotate(${mousePos.x * 0.5}deg)`,
-            }}
-          >
-            <Image
-              src={HoseDraggersHero}
-              alt='Hero'
-              className='object-contain lg:object-right select-none drop-shadow-[-30px_30px_60px_rgba(0,0,0,0.9)]'
-              fill
-              priority
-              sizes='(max-width: 1024px) 100vw, 60vw'
-            />
-          </div>
-        </div>
+      {/* HERO */}
+      <section className='bg-black text-white py-24 px-6 text-center overflow-hidden relative'>
+        <h1 className='font-[family-name:var(--font-my-custom-font)] text-8xl md:text-[10rem] bg-gradient-to-r from-orange-500 to-orange-400/80 bg-clip-text text-transparent -rotate-2 drop-shadow-2xl'>
+          The Gear Locker
+        </h1>
+        <p className='text-gray-400 font-bold uppercase tracking-[0.4em] mt-6 text-xs'>
+          Premium High-Heat Vinyl Decals
+        </p>
       </section>
 
-      {/* PRODUCTS SECTION (with -mt-12 and rounded-t for overlap) */}
-      <section className='bg-white -mt-12 md:mx-8 mx-autopt-24 pb-20 px-6 rounded-t-[2rem] rounded-b-[2rem] relative z-40'>
-        <div className='max-w-7xl mx-auto'>
-          <div className='flex items-center gap-4 mb-12 pt-8'>
-            <h2
-              className='text-4xl font-black uppercase tracking-tighter'
-              id='stickers'
+      <div className='max-w-7xl mx-auto px-6 py-20'>
+        {/* LINEUP GRID */}
+        <div className='grid grid-cols-2 md:grid-cols-4 gap-8 mb-20'>
+          {products.map((p) => (
+            <div
+              key={p.id}
+              onClick={() => setSelectedProduct(p)}
+              className='group cursor-pointer flex flex-col items-center'
             >
-              The Lineup
-            </h2>
-            <div className='h-[2px] flex-grow bg-gray-100' />
-          </div>
+              <div className='relative aspect-square w-full bg-gray-50 rounded-3xl mb-4 flex items-center justify-center border border-transparent group-hover:border-gray-100 group-hover:bg-white group-hover:shadow-xl transition-all overflow-hidden'>
+                <Image
+                  src={p.image}
+                  alt={p.name}
+                  width={160}
+                  height={160}
+                  className='object-contain group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500'
+                />
+                <div className='absolute bottom-4 inset-x-4 bg-white py-2 text-[10px] font-bold text-center uppercase tracking-widest translate-y-12 group-hover:translate-y-0 transition-transform rounded-xl shadow-lg'>
+                  Quick View
+                </div>
+              </div>
+              <h3 className='font-bold text-sm text-center'>{p.name}</h3>
+              <p className='text-orange-600 font-black'>
+                ${(p.price / 100).toFixed(2)}
+              </p>
+            </div>
+          ))}
+        </div>
 
-          <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10'>
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onView={() => setSelectedProduct(product)}
-              />
+        {/* BUNDLE BUILDER CTA */}
+        <BundleBuilder items={products} />
+
+        {/* KIDS SECTION */}
+        <div className='bg-orange-50 rounded-[3rem] p-12 md:p-20 relative overflow-hidden'>
+          <h2 className='text-4xl font-black uppercase tracking-tighter italic mb-10'>
+            Little Firefighters
+          </h2>
+          <div className='grid grid-cols-2 md:grid-cols-4 gap-8'>
+            {kidsStickers.map((k) => (
+              <div
+                key={k.id}
+                onClick={() => setSelectedProduct(k)}
+                className='cursor-pointer'
+              >
+                <div className='relative aspect-square bg-white rounded-3xl mb-4 p-6 shadow-sm flex items-center justify-center'>
+                  <Image
+                    src={k.image}
+                    alt={k.name}
+                    className='object-contain'
+                    width={120}
+                    height={120}
+                  />
+                </div>
+                <p className='text-center font-bold text-sm uppercase'>
+                  {k.name}
+                </p>
+                <p className='text-center text-orange-600 font-black'>
+                  ${(k.price / 100).toFixed(2)}
+                </p>
+              </div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
       {selectedProduct && (
         <ProductModal
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
-          onOpenCart={() => setIsCartOpen(true)}
         />
       )}
-
-      {/* DCDescription Section */}
-      <DCDescription />
     </main>
-  );
-}
-
-function ProductCard({ product, onView }: any) {
-  return (
-    <button
-      onClick={onView}
-      className='group flex flex-col items-center w-full text-left'
-    >
-      <div className='relative w-full aspect-square bg-white/40 backdrop-blur-md rounded-3xl mb-4 overflow-hidden flex items-center justify-center border border-white/20 shadow-sm transition-all hover:shadow-xl hover:bg-white/60 hover:-translate-y-1'>
-        <Image
-          src={product.image}
-          alt={product.name}
-          className='w-40 h-40 object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6'
-        />
-        <div className='absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4'>
-          <div className='w-full bg-white/90 backdrop-blur-sm py-2 text-center text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg translate-y-4 group-hover:translate-y-0 transition-transform'>
-            Quick View
-          </div>
-        </div>
-      </div>
-      <p className='font-bold text-center text-gray-900 group-hover:text-orange-600 transition-colors w-full px-2'>
-        {product.name}
-      </p>
-      <p className='text-gray-500 font-black text-sm uppercase tracking-tighter'>
-        ${(product.price / 100).toFixed(2)}
-      </p>
-    </button>
   );
 }
