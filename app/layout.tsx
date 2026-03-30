@@ -8,7 +8,7 @@ import "./globals.css";
 import ClientLayout from "../components/clientLayout";
 
 const myCustomFont = LocalFont({
-  src: "fonts/Billy_Ohio.ttf",
+  src: "./fonts/Billy_Ohio.ttf",
   variable: "--font-my-custom-font",
 });
 
