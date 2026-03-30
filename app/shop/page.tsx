@@ -25,7 +25,7 @@ import HoseDraggerHelmet from "@/public/images/hose-dragger-helmet.png";
 import DiaDeMuertos from "@/public/images/dia-de-muertos.png";
 import DiaDeMuertosCigar from "@/public/images/dia-de-muertos-cigar.png";
 import DiaDeMuertosNozzle from "@/public/images/dia-de-muertos-nozzle.png";
-import DiaDeMuertosChariot from "@/public/images/chariot-white-bg.PNG";
+import DiaDeMuertosChariot from "@/public/images/chariot-white-bg.png";
 import DiaDeMuertosAxe from "@/public/images/dia-de-muertos-axe.png";
 import DiaDeMuertosAxeW from "@/public/images/dia-de-muertos-axe-white.png";
 import DiaDeMuertosPoint from "@/public/images/dia-de-muertos-point.png";
