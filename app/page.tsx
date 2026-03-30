@@ -27,10 +27,10 @@ import DiaDeMuertosChariot from "../public/images/dia-de-muertos-chariot.png";
 import DiaDeMuertosAxe from "../public/images/dia-de-muertos-axe.png";
 import DiaDeMuertosPoint from "../public/images/dia-de-muertos-point.png";
 import DiaDeMuertosAxeW from "../public/images/dia-de-muertos-axe-white.png";
-import DiaDeMuertosPointing from "@/public/images/Dia-De-Muertos-Pointing-copy.png"; // Added DiaDeMuertosPointing
+import DiaDeMuertosPointing from "@/public/images/dia-de-muertos-pointing.png"; // Added DiaDeMuertosPointing
 
 const myCustomFont = LocalFont({
-  src: "../public/fonts/billy ohio.ttf",
+  src: "../public/fonts/Billy_Ohio.ttf",
   variable: "--font-my-custom-font",
 });
 
