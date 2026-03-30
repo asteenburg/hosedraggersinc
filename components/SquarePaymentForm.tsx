@@ -26,11 +26,12 @@ export default function SquarePaymentForm({
 }: SquarePaymentFormProps) {
   const cardRef = useRef<any>(null);
   const [cardReady, setCardReady] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     async function init() {
       if (!window.Square) {
-        console.error("❌ Square SDK not loaded");
+        console.error("❌ Square SDK not loaded. Ensure the script is in your layout.");
         return;
       }
 
@@ -42,89 +43,105 @@ export default function SquarePaymentForm({
         return;
       }
 
-      const payments = window.Square.payments(appId, locationId);
-      const card = await payments.card();
-      await card.attach("#card-container");
-      cardRef.current = card;
-      setCardReady(true);
-
-      console.log("✅ Square card initialized");
+      try {
+        const payments = window.Square.payments(appId, locationId);
+        const card = await payments.card();
+        await card.attach("#card-container");
+        cardRef.current = card;
+        setCardReady(true);
+        console.log("✅ Square card initialized");
+      } catch (e) {
+        console.error("Square initialization failed", e);
+      }
     }
 
     init();
   }, []);
 
   async function handleCheckout() {
-    if (!cardReady || !cardRef.current) {
-      alert("Payment form still loading. Please wait 1–2 seconds.");
-      return;
-    }
+    if (!cardReady || !cardRef.current || isProcessing) return;
 
     if (!amount || amount <= 0) {
       alert("Invalid payment amount");
       return;
     }
 
-    const result = await cardRef.current.tokenize();
-    if (result.status !== "OK") {
-      console.error("❌ Tokenize failed", result.errors);
-      alert("Card tokenization failed");
-      return;
-    }
+    setIsProcessing(true);
 
     try {
-      const res = await fetch("/api/create-checkout", {
+      // 1. Generate the secure token from the card details
+      const result = await cardRef.current.tokenize();
+      
+      if (result.status !== "OK") {
+        throw new Error(result.errors[0].message);
+      }
+
+      // 2. Send the token (sourceId) to your OWN backend API
+      const res = await fetch("/api/process-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          sourceId: result.token, // This is the single-use card token
           amount,
           email,
-          emailOptIn: emailOptIn || false,
-          isDonating: isDonating || false, // ensure boolean
+          emailOptIn,
+          isDonating,
         }),
       });
 
       const data = await res.json();
 
-      if (!data.checkoutUrl) {
-        console.error("❌ Checkout error", data);
-        alert("Checkout failed");
-        return;
+      if (!res.ok) {
+        throw new Error(data.error || "Payment failed at the server");
       }
 
-      console.log("✅ Redirecting to Square checkout");
-      onPaymentSuccess?.();
-      window.location.href = data.checkoutUrl;
-    } catch (error) {
-      console.error("❌ Checkout fetch error", error);
-      alert("Checkout failed. Please try again.");
+      // 3. Success!
+      console.log("✅ Payment processed successfully");
+      onPaymentSuccess?.(); // This clears the cart in your CheckoutPage
+      
+      // Redirect to your custom success page
+      window.location.href = "/success";
+
+    } catch (error: any) {
+      console.error("❌ Checkout error:", error);
+      alert(error.message || "Checkout failed. Please check your card details.");
+    } finally {
+      setIsProcessing(false);
     }
   }
 
   return (
-    <div className='max-w-md mx-auto mt-8'>
+    <div className='max-w-md mx-auto mt-4'>
       <div
         id='card-container'
-        className='mb-6'
+        className='mb-6 min-h-[120px]' // Prevents layout shift while loading
       />
 
       <button
         onClick={handleCheckout}
-        className='mb-4 w-full bg-black text-white py-3 rounded-md'
+        disabled={!cardReady || isProcessing}
+        className={`w-full py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg ${
+          isProcessing 
+          ? "bg-gray-400 cursor-not-allowed" 
+          : "bg-orange-600 hover:bg-black text-white hover:scale-[1.02] active:scale-95"
+        }`}
       >
-        Pay ${(amount / 100).toFixed(2)}
+        {isProcessing ? "Processing..." : `Pay $${(amount / 100).toFixed(2)}`}
       </button>
 
       <Link href='/'>
-        <button className='mt-4 w-full bg-gray-600 text-white py-3 rounded-md'>
-          Back to Home
+        <button className='mt-4 w-full text-gray-400 text-xs font-bold uppercase tracking-widest hover:text-orange-600 transition-colors'>
+          Cancel & Exit
         </button>
       </Link>
 
       {!cardReady && (
-        <p className='text-sm text-gray-500 mt-2 text-center'>
-          Loading secure payment form…
-        </p>
+        <div className="flex flex-col items-center gap-2 mt-4">
+          <div className="w-5 h-5 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" />
+          <p className='text-[10px] text-gray-500 font-bold uppercase tracking-widest'>
+            Loading Secure Form...
+          </p>
+        </div>
       )}
     </div>
   );
