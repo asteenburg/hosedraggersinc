@@ -9,11 +9,13 @@ interface SquarePaymentFormProps {
   email?: string;
   emailOptIn?: boolean;
   isDonating?: boolean;
+
+  // Shipping / contact info
   shippingName?: string;
   shippingAddress?: string;
   shippingCity?: string;
-  shippingPostal?: string;
   shippingProvince?: string;
+  shippingPostal?: string;
   contactPhone?: string;
 }
 
@@ -32,8 +34,8 @@ export default function SquarePaymentForm({
   shippingName = "",
   shippingAddress = "",
   shippingCity = "",
-  shippingPostal = "",
   shippingProvince = "",
+  shippingPostal = "",
   contactPhone = "",
 }: SquarePaymentFormProps) {
   const cardRef = useRef<any>(null);
@@ -56,11 +58,11 @@ export default function SquarePaymentForm({
         await card.attach("#card-container");
         cardRef.current = card;
         setCardReady(true);
-        console.log("✅ Square card ready");
       } catch (e) {
         console.error("❌ Square initialization failed", e);
       }
     }
+
     init();
   }, []);
 
@@ -80,6 +82,7 @@ export default function SquarePaymentForm({
 
     try {
       console.log("➡️ Tokenizing...");
+
       const result = await cardRef.current.tokenize();
       console.log("🧾 TOKEN RESULT:", result);
 
@@ -93,7 +96,9 @@ export default function SquarePaymentForm({
 
       const apiResponse = await fetch("/api/pay", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           sourceId: result.token,
           amount,
@@ -102,8 +107,8 @@ export default function SquarePaymentForm({
           shippingName,
           shippingAddress,
           shippingCity,
-          shippingPostal,
           shippingProvince,
+          shippingPostal,
           contactPhone,
         }),
       });
