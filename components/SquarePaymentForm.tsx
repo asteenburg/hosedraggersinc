@@ -28,6 +28,7 @@ export default function SquarePaymentForm({
   const [cardReady, setCardReady] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Initialize Square card
   useEffect(() => {
     async function init() {
       if (!window.Square) {
@@ -44,69 +45,72 @@ export default function SquarePaymentForm({
         await card.attach("#card-container");
         cardRef.current = card;
         setCardReady(true);
+        console.log("✅ Square card initialized");
       } catch (e) {
-        console.error("Square initialization failed", e);
+        console.error("❌ Square initialization failed", e);
       }
     }
+
     init();
   }, []);
 
+  // Handle checkout
   async function handleCheckout() {
-    console.log({
-      cardReady,
-      hasCard: !!cardRef.current,
-      isProcessing,
-    });
-    if (!cardReady || !cardRef.current || isProcessing) return;
+    console.log("🔥 Checkout clicked");
+
+    if (!cardReady || !cardRef.current || isProcessing) {
+      console.log("⛔ Blocked:", { cardReady, hasCard: !!cardRef.current, isProcessing });
+      return;
+    }
 
     setIsProcessing(true);
 
     try {
-      // 1. Generate the secure token
+      console.log("➡️ Tokenizing...");
+
       const result = await cardRef.current.tokenize();
+      console.log("🧾 TOKEN RESULT:", result);
 
       if (result.status !== "OK") {
-        throw new Error(result.errors[0].message);
+        console.error("❌ Tokenization failed:", result.errors);
+        alert(JSON.stringify(result.errors, null, 2));
+        return;
       }
 
-      // 2. Send to your backend
-      // FIX: Ensure we use the correct path '/api/pay'
-      const response = await fetch("/api/pay", {
+      console.log("✅ Token OK, calling API...");
+
+      const apiResponse = await fetch("/api/pay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sourceId: result.token, // FIX: Changed 'token' to 'result.token'
-          amount: amount,
-          email: email,
-          isDonating: isDonating,
+          sourceId: result.token,
+          amount,
+          email,
+          isDonating,
         }),
       });
 
-      // FIX: Changed 'res' to 'response' to match the constant above
-      const data = await response.json();
+      const data = await apiResponse.json();
+      console.log("📦 API DATA:", data);
 
-      if (!response.ok) {
-        throw new Error(data.error || "Payment failed at the server");
+      if (!apiResponse.ok) {
+        throw new Error(data.error || "Payment failed");
       }
 
-      // 3. Success!
-      console.log("✅ Payment processed successfully");
+      console.log("✅ Payment success");
       onPaymentSuccess?.();
       window.location.href = "/success";
     } catch (error: any) {
       console.error("❌ Checkout error:", error);
-      alert(error.message || "Checkout failed.");
+      alert(error.message || "Checkout failed");
     } finally {
       setIsProcessing(false);
     }
   }
 
   return (
-    <div className='max-w-md mx-auto mt-4'>
-      <div
-        id='card-container'
-        className='mb-6 min-h-[120px]'
-      />
+    <div className="max-w-md mx-auto mt-4">
+      <div id="card-container" className="mb-6 min-h-[120px]" />
 
       <button
         onClick={handleCheckout}
@@ -120,16 +124,16 @@ export default function SquarePaymentForm({
         {isProcessing ? "Processing..." : `Pay $${(amount / 100).toFixed(2)}`}
       </button>
 
-      <Link href='/'>
-        <button className='mt-4 w-full text-gray-400 text-xs font-bold uppercase tracking-widest hover:text-orange-600 transition-colors'>
+      <Link href="/">
+        <button className="mt-4 w-full text-gray-400 text-xs font-bold uppercase tracking-widest hover:text-orange-600 transition-colors">
           Cancel & Exit
         </button>
       </Link>
 
       {!cardReady && (
-        <div className='flex flex-col items-center gap-2 mt-4'>
-          <div className='w-5 h-5 border-2 border-orange-600 border-t-transparent rounded-full animate-spin' />
-          <p className='text-[10px] text-gray-500 font-bold uppercase tracking-widest'>
+        <div className="flex flex-col items-center gap-2 mt-4">
+          <div className="w-5 h-5 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
             Loading Secure Form...
           </p>
         </div>
