@@ -25,6 +25,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Hose Draggers Inc.",
   description: "High quality stickers for firefighters by firefighters.",
+  icons: {
+    icon: "/favicon.ico", // Points to public/favicon.ico or app/favicon.ico
+    apple: "/apple-icon.png", // If you have one
+  },
 };
 
 export default function RootLayout({
