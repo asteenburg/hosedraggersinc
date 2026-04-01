@@ -31,16 +31,22 @@ export default function SquarePaymentForm({
   useEffect(() => {
     async function init() {
       if (!window.Square) {
-        console.error("❌ Square SDK not loaded. Ensure the script is in your layout.");
+        console.error(
+          "❌ Square SDK not loaded. Ensure the script is in your layout.",
+        );
         return;
       }
 
       const appId = process.env.NEXT_PUBLIC_SQUARE_APP_ID;
       const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID;
 
-      if (!appId || !locationId) {
-        console.error("❌ Missing Square env vars", { appId, locationId });
-        return;
+      if (
+        !appId ||
+        (!appId.startsWith("sandbox-") && !appId.startsWith("sq0idp-"))
+      ) {
+        console.error(
+          "Square Application ID is missing or incorrectly formatted. Check your .env file.",
+        );
       }
 
       try {
@@ -71,7 +77,7 @@ export default function SquarePaymentForm({
     try {
       // 1. Generate the secure token from the card details
       const result = await cardRef.current.tokenize();
-      
+
       if (result.status !== "OK") {
         throw new Error(result.errors[0].message);
       }
@@ -98,13 +104,14 @@ export default function SquarePaymentForm({
       // 3. Success!
       console.log("✅ Payment processed successfully");
       onPaymentSuccess?.(); // This clears the cart in your CheckoutPage
-      
+
       // Redirect to your custom success page
       window.location.href = "/success";
-
     } catch (error: any) {
       console.error("❌ Checkout error:", error);
-      alert(error.message || "Checkout failed. Please check your card details.");
+      alert(
+        error.message || "Checkout failed. Please check your card details.",
+      );
     } finally {
       setIsProcessing(false);
     }
@@ -121,9 +128,9 @@ export default function SquarePaymentForm({
         onClick={handleCheckout}
         disabled={!cardReady || isProcessing}
         className={`w-full py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg ${
-          isProcessing 
-          ? "bg-gray-400 cursor-not-allowed" 
-          : "bg-orange-600 hover:bg-black text-white hover:scale-[1.02] active:scale-95"
+          isProcessing
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-orange-600 hover:bg-black text-white hover:scale-[1.02] active:scale-95"
         }`}
       >
         {isProcessing ? "Processing..." : `Pay $${(amount / 100).toFixed(2)}`}
@@ -136,8 +143,8 @@ export default function SquarePaymentForm({
       </Link>
 
       {!cardReady && (
-        <div className="flex flex-col items-center gap-2 mt-4">
-          <div className="w-5 h-5 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" />
+        <div className='flex flex-col items-center gap-2 mt-4'>
+          <div className='w-5 h-5 border-2 border-orange-600 border-t-transparent rounded-full animate-spin' />
           <p className='text-[10px] text-gray-500 font-bold uppercase tracking-widest'>
             Loading Secure Form...
           </p>

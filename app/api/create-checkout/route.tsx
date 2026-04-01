@@ -7,18 +7,24 @@ export async function POST(req: Request) {
 
     // Basic validation
     if (!sourceId || !amount || amount <= 0) {
-      return NextResponse.json({ error: "Invalid payment data" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid payment data" },
+        { status: 400 },
+      );
     }
 
     const token = process.env.SQUARE_ACCESS_TOKEN;
-    
+
     // Check for credentials
     if (!token) {
       console.error("❌ Missing SQUARE_ACCESS_TOKEN");
-      return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Internal Server Error" },
+        { status: 500 },
+      );
     }
 
-    // Use 'connect.squareup.com' for LIVE, 'connect.squareupsandbox.com' for TESTING
+    // Use 'connect.squareup.com' for LIVE,
     const squareUrl = "https://connect.squareup.com/v2/payments";
 
     const body = {
@@ -36,7 +42,7 @@ export async function POST(req: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         "Square-Version": "2024-10-17", // Good practice to include version
       },
       body: JSON.stringify(body),
@@ -48,19 +54,18 @@ export async function POST(req: Request) {
       console.error("❌ Square API error:", data.errors);
       return NextResponse.json(
         { error: data.errors?.[0]?.detail || "Payment failed" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Success!
     console.log("✅ Payment Created:", data.payment.id);
     return NextResponse.json({ success: true, paymentId: data.payment.id });
-
   } catch (error: any) {
     console.error("Unexpected server error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

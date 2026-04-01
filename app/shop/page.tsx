@@ -247,9 +247,11 @@ export default function ShopPage() {
 
       {/* HERO */}
       <section className='bg-black text-white py-24 px-6 text-center overflow-hidden relative'>
-        <h1 className={`${HoseFont.className} text-8xl md:text-[10rem] bg-gradient-to-r from-orange-500 to-orange-400/80 bg-clip-text text-transparent normal-case -rotate-2 drop-shadow-2xl`}>
-  The Gear Locker
-</h1>
+        <h1
+          className={`${HoseFont.className} text-8xl md:text-[10rem] bg-gradient-to-r from-orange-500 to-orange-400/80 bg-clip-text text-transparent normal-case -rotate-2 drop-shadow-2xl`}
+        >
+          The Gear Locker
+        </h1>
 
         <p className='text-gray-400 font-bold uppercase tracking-[0.4em] mt-6 text-xs'>
           Premium High-Heat Vinyl Decals

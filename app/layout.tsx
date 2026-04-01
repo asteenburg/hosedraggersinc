@@ -44,9 +44,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${myCustomFont.variable} antialiased`}
       >
         <CartProvider>
-          <ClientLayout>
-            {children}
-          </ClientLayout>
+          <ClientLayout>{children}</ClientLayout>
         </CartProvider>
 
         <Footer />

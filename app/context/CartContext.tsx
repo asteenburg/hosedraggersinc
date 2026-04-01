@@ -21,7 +21,7 @@ export type CartItem = {
 type CartContextType = {
   cart: CartItem[];
   subtotal: number; // Sum of items only
-  total: number;    // Subtotal + donation
+  total: number; // Subtotal + donation
   isDonating: boolean;
   donationAmount: number;
   toggleDonation: () => void;
@@ -108,9 +108,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   /* CALCULATIONS */
   const subtotal = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0
+    0,
   );
-  
+
   const total = isDonating ? subtotal + donationAmount : subtotal;
 
   return (
