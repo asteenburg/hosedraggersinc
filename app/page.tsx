@@ -266,7 +266,7 @@ export default function Home() {
 
       {/* CART DRAWER (Z-INDEX 55) */}
       <CartDrawer
-        open={isCartOpen}
+        isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
       />
 
