@@ -9,6 +9,12 @@ interface SquarePaymentFormProps {
   email?: string;
   emailOptIn?: boolean;
   isDonating?: boolean;
+  shippingName?: string;
+  shippingAddress?: string;
+  shippingCity?: string;
+  shippingPostal?: string;
+  shippingProvince?: string;
+  contactPhone?: string;
 }
 
 declare global {
@@ -23,12 +29,17 @@ export default function SquarePaymentForm({
   email = "",
   emailOptIn = false,
   isDonating = false,
+  shippingName = "",
+  shippingAddress = "",
+  shippingCity = "",
+  shippingPostal = "",
+  shippingProvince = "",
+  contactPhone = "",
 }: SquarePaymentFormProps) {
   const cardRef = useRef<any>(null);
   const [cardReady, setCardReady] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Initialize Square card
   useEffect(() => {
     async function init() {
       if (!window.Square) {
@@ -45,21 +56,23 @@ export default function SquarePaymentForm({
         await card.attach("#card-container");
         cardRef.current = card;
         setCardReady(true);
-        console.log("✅ Square card initialized");
+        console.log("✅ Square card ready");
       } catch (e) {
         console.error("❌ Square initialization failed", e);
       }
     }
-
     init();
   }, []);
 
-  // Handle checkout
   async function handleCheckout() {
     console.log("🔥 Checkout clicked");
 
     if (!cardReady || !cardRef.current || isProcessing) {
-      console.log("⛔ Blocked:", { cardReady, hasCard: !!cardRef.current, isProcessing });
+      console.log("⛔ Blocked:", {
+        cardReady,
+        hasCard: !!cardRef.current,
+        isProcessing,
+      });
       return;
     }
 
@@ -67,7 +80,6 @@ export default function SquarePaymentForm({
 
     try {
       console.log("➡️ Tokenizing...");
-
       const result = await cardRef.current.tokenize();
       console.log("🧾 TOKEN RESULT:", result);
 
@@ -87,6 +99,12 @@ export default function SquarePaymentForm({
           amount,
           email,
           isDonating,
+          shippingName,
+          shippingAddress,
+          shippingCity,
+          shippingPostal,
+          shippingProvince,
+          contactPhone,
         }),
       });
 
@@ -109,8 +127,11 @@ export default function SquarePaymentForm({
   }
 
   return (
-    <div className="max-w-md mx-auto mt-4">
-      <div id="card-container" className="mb-6 min-h-[120px]" />
+    <div className='max-w-md mx-auto mt-4'>
+      <div
+        id='card-container'
+        className='mb-6 min-h-[120px]'
+      />
 
       <button
         onClick={handleCheckout}
@@ -124,16 +145,16 @@ export default function SquarePaymentForm({
         {isProcessing ? "Processing..." : `Pay $${(amount / 100).toFixed(2)}`}
       </button>
 
-      <Link href="/">
-        <button className="mt-4 w-full text-gray-400 text-xs font-bold uppercase tracking-widest hover:text-orange-600 transition-colors">
+      <Link href='/'>
+        <button className='mt-4 w-full text-gray-400 text-xs font-bold uppercase tracking-widest hover:text-orange-600 transition-colors'>
           Cancel & Exit
         </button>
       </Link>
 
       {!cardReady && (
-        <div className="flex flex-col items-center gap-2 mt-4">
-          <div className="w-5 h-5 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+        <div className='flex flex-col items-center gap-2 mt-4'>
+          <div className='w-5 h-5 border-2 border-orange-600 border-t-transparent rounded-full animate-spin' />
+          <p className='text-[10px] text-gray-500 font-bold uppercase tracking-widest'>
             Loading Secure Form...
           </p>
         </div>
