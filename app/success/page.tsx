@@ -1,79 +1,77 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { useEffect } from "react";
+import confetti from "canvas-confetti";
+import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { CheckCircle2, Package, ArrowRight, Instagram } from "lucide-react";
 
-export default function SuccessPage() {
-  // Optional: Clear any remaining local storage if the cart didn't clear
+const SuccessPage = () => {
   useEffect(() => {
-    // window.localStorage.removeItem('cart');
-    console.log("Order Successful - Hose Draggers Inc.");
+    // Trigger confetti on mount
+    const duration = 3 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    const randomInRange = (min: number, max: number) =>
+      Math.random() * (max - min) + min;
+
+    const interval: any = setInterval(function () {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+
+      // Since particles fall down, start a bit higher than random
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+      });
+    }, 250);
   }, []);
 
   return (
-    <div className='min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center'>
-      {/* SUCCESS ICON */}
-      <div className='mb-8 relative'>
-        <div className='absolute inset-0 bg-orange-500 blur-2xl opacity-20 animate-pulse' />
-        <CheckCircle2
-          size={100}
-          className='text-orange-600 relative z-10'
-          strokeWidth={1.5}
-        />
-      </div>
-
-      {/* BRANDING & MESSAGE */}
-      <h1 className='text-5xl md:text-7xl font-black uppercase italic tracking-tighter mb-2'>
-        ORDER SECURED
-      </h1>
-      <p className='text-gray-500 font-bold uppercase tracking-[0.3em] text-sm mb-12'>
-        Your gear is being prepped for dispatch
-      </p>
-
-      {/* INFO CARD */}
-      <div className='w-full max-w-md bg-gray-50 border border-gray-100 rounded-3xl p-8 mb-8'>
-        <div className='flex items-center gap-4 mb-6 text-left'>
-          <div className='bg-orange-100 p-3 rounded-2xl text-orange-600'>
-            <Package size={24} />
-          </div>
-          <div>
-            <h3 className='font-black uppercase text-sm'>Tracking Info</h3>
-            <p className='text-xs text-gray-500 font-medium'>
-              Sent to your email shortly
-            </p>
+    <div className='min-h-screen flex items-center justify-center bg-gray-50 px-4'>
+      <div className='max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-gray-100'>
+        <div className='flex justify-center mb-6'>
+          <div className='bg-green-100 p-3 rounded-full'>
+            <CheckCircleIcon className='w-16 h-16 text-green-600' />
           </div>
         </div>
+
+        <h1 className='text-3xl font-bold text-gray-900 mb-2'>
+          Order Confirmed!
+        </h1>
+        <p className='text-gray-600 mb-8'>
+          Your gear is being prepped. We've sent a receipt to your email
+          address.
+        </p>
 
         <div className='space-y-4'>
           <Link
-            href='/'
-            className='group flex items-center justify-between w-full bg-black text-white p-5 rounded-2xl font-black uppercase tracking-widest hover:bg-orange-600 transition-all shadow-xl'
+            href='/shop'
+            className='block w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-md'
           >
-            Return to Shop
-            <ArrowRight
-              size={20}
-              className='group-hover:translate-x-1 transition-transform'
-            />
+            Continue Shopping
           </Link>
-
-          <a
-            href='https://instagram.com/hosedraggersinc'
-            target='_blank'
-            className='flex items-center justify-center gap-2 w-full p-5 rounded-2xl font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors'
+          <Link
+            href='/'
+            className='block w-full py-3 px-4 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition duration-200'
           >
-            <Instagram size={18} />
-            Follow the Build
-          </a>
+            Back to Home
+          </Link>
         </div>
-      </div>
-
-      {/* FOOTER DECAL */}
-      <div className='opacity-10 pointer-events-none select-none'>
-        <h2 className='text-9xl font-black italic tracking-tighter'>
-          HOSE DRAGGERS
-        </h2>
       </div>
     </div>
   );
-}
+};
+
+export default SuccessPage;
