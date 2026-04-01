@@ -31,7 +31,7 @@ const products: Product[] = [
   {
     id: "hose-dragger-helmet",
     name: "Hose Dragger Helmet",
-    price: 50,
+    price: 900,
     image: HoseDraggerHelmet,
   },
   {
