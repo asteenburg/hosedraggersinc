@@ -4,17 +4,15 @@ import {
   createContext,
   useContext,
   useState,
-  ReactNode,
   useEffect,
+  ReactNode,
 } from "react";
-
-/* ---------------- TYPES ---------------- */
 
 export type CartItem = {
   id: string;
   name: string;
-  price: number; // in cents
-  image: string; // URL path like "/images/sticker.png"
+  price: number;
+  image: any;
   quantity: number;
 };
 
@@ -24,7 +22,9 @@ type CartContextType = {
   total: number;
   isDonating: boolean;
   donationAmount: number;
-  isInitialized: boolean; // Add this to the type
+  isInitialized: boolean;
+  isCartOpen: boolean;
+  toggleCart: () => void;
   toggleDonation: () => void;
   addToCart: (item: Omit<CartItem, "quantity">) => void;
   updateQuantity: (id: string, quantity: number) => void;
@@ -37,58 +37,59 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isDonating, setIsDonating] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const donationAmount = 500;
+  const donationAmount = 500; // $5.00 in cents
 
-  // 1. Load from localStorage
+  // 1. INITIAL LOAD: Pull from LocalStorage on mount
   useEffect(() => {
-    const savedCart = localStorage.getItem("cart-storage");
-    const savedDonation = localStorage.getItem("donation-storage");
+    const savedCart = localStorage.getItem("hose-draggers-cart");
+    const savedDonation = localStorage.getItem("hose-draggers-donation");
 
     if (savedCart) {
       try {
-        const parsedCart = JSON.parse(savedCart);
-        // Safety check: ensure every item has a valid image string
-        setCart(parsedCart);
+        setCart(JSON.parse(savedCart));
       } catch (error) {
-        console.error("Failed to load cart:", error);
+        console.error("Failed to parse cart from local storage", error);
       }
     }
 
-    if (savedDonation) {
-      setIsDonating(savedDonation === "true");
+    if (savedDonation === "true") {
+      setIsDonating(true);
     }
 
     setIsInitialized(true);
   }, []);
 
-  // 2. Save to localStorage
+  // 2. PERSISTENCE: Save to LocalStorage whenever cart or donation changes
   useEffect(() => {
     if (isInitialized) {
-      localStorage.setItem("cart-storage", JSON.stringify(cart));
-      localStorage.setItem("donation-storage", isDonating.toString());
+      localStorage.setItem("hose-draggers-cart", JSON.stringify(cart));
+      localStorage.setItem("hose-draggers-donation", isDonating.toString());
     }
   }, [cart, isDonating, isInitialized]);
 
+  const toggleCart = () => setIsCartOpen((prev) => !prev);
   const toggleDonation = () => setIsDonating((prev) => !prev);
 
   const addToCart = (item: Omit<CartItem, "quantity">) => {
     setCart((prev) => {
-      const existing = prev.find((p) => p.id === item.id);
-      if (existing) {
-        return prev.map((p) =>
-          p.id === item.id ? { ...p, quantity: p.quantity + 1 } : p,
+      const existingItem = prev.find((i) => i.id === item.id);
+      if (existingItem) {
+        return prev.map((i) =>
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i,
         );
       }
       return [...prev, { ...item, quantity: 1 }];
     });
+    // Auto-open the drawer when an item is added
+    setIsCartOpen(true);
   };
 
   const updateQuantity = (id: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(id);
-      return;
+      return removeFromCart(id);
     }
     setCart((prev) =>
       prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
@@ -102,7 +103,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => {
     setCart([]);
     setIsDonating(false);
-    localStorage.removeItem("cart-storage"); // Explicitly wipe storage
+    localStorage.removeItem("hose-draggers-cart");
+    localStorage.removeItem("hose-draggers-donation");
   };
 
   const subtotal = cart.reduce(
@@ -120,6 +122,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         isDonating,
         donationAmount,
         isInitialized,
+        isCartOpen,
+        toggleCart,
         toggleDonation,
         addToCart,
         updateQuantity,
@@ -134,6 +138,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 export function useCart() {
   const context = useContext(CartContext);
-  if (!context) throw new Error("useCart must be used inside CartProvider");
+  if (!context) {
+    throw new Error("useCart must be used within a CartProvider");
+  }
   return context;
 }

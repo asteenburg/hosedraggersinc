@@ -1,202 +1,162 @@
 "use client";
 
-import { useCart, CartItem } from "@/app/context/CartContext";
-import { Plus, Minus, X, ShoppingBag } from "lucide-react";
+import { X, ShoppingBag, Trash2, Plus, Minus, ArrowRight } from "lucide-react";
+import { useCart } from "@/app/context/CartContext";
 import Image from "next/image";
 import Link from "next/link";
 
-// If you have static imports for recommendations, they look like this:
-// import stickerAxe from "@/public/stickers/axe.png";
-
-export default function CartDrawer({
-  isOpen,
-  onClose,
-}: {
+interface CartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-}) {
-  const { cart, updateQuantity, removeFromCart, subtotal, addToCart } =
-    useCart();
+}
 
-  // Example Recommendations logic that was causing your build error
-  const recommendations = [
-    {
-      id: "rec-1",
-      name: "Classic Fire Axe Sticker",
-      price: 500,
-      // If this is a StaticImageData object from an import,
-      // we handle it in the onClick below.
-      image: "/stickers/axe-gold.png",
-    },
-  ];
-
-  if (!isOpen) return null;
+export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
+  const {
+    cart,
+    updateQuantity,
+    removeFromCart,
+    subtotal,
+    isDonating,
+    donationAmount,
+    total,
+  } = useCart();
 
   return (
-    <div className='fixed inset-0 z-50 overflow-hidden'>
+    <>
+      {/* OVERLAY - z-[100] ensures it covers the Navbar */}
       <div
-        className='absolute inset-0 bg-black/40 backdrop-blur-sm'
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ease-in-out ${
+          isOpen ? "opacity-100 z-[100]" : "opacity-0 pointer-events-none"
+        }`}
         onClick={onClose}
       />
 
-      <div className='absolute inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl flex flex-col'>
-        {/* HEADER */}
-        <div className='p-6 border-b flex items-center justify-between'>
-          <div className='flex items-center gap-2'>
-            <ShoppingBag className='text-orange-600' />
-            <h2 className='text-xl font-black uppercase italic tracking-tighter'>
-              Your Gear
-            </h2>
-          </div>
-          <button
-            onClick={onClose}
-            className='p-2 hover:bg-gray-100 rounded-full transition-colors'
-          >
-            <X size={24} />
-          </button>
-        </div>
-
-        {/* CART ITEMS */}
-        <div className='flex-1 overflow-y-auto p-6 space-y-6'>
-          {cart.length === 0 ? (
-            <div className='text-center py-20'>
-              <p className='text-gray-400 font-bold uppercase tracking-widest text-sm'>
-                Your cart is empty
-              </p>
-              <button
-                onClick={onClose}
-                className='mt-4 text-orange-600 font-black uppercase text-xs border-b-2 border-orange-600'
-              >
-                Start Shopping
-              </button>
+      {/* DRAWER PANEL - z-[110] stays on top of the overlay */}
+      <div
+        className={`fixed top-0 right-0 h-full w-full sm:w-[450px] bg-white shadow-2xl transition-transform duration-500 ease-in-out transform ${
+          isOpen ? "translate-x-0 z-[110]" : "translate-x-full"
+        }`}
+      >
+        <div className='flex flex-col h-full'>
+          {/* HEADER */}
+          <div className='p-6 border-b flex items-center justify-between bg-black text-white'>
+            <div className='flex items-center gap-3'>
+              <ShoppingBag className='text-orange-500' />
+              <h2 className='text-xl font-black uppercase tracking-tighter'>
+                Compartment
+              </h2>
             </div>
-          ) : (
-            cart.map((item) => (
-              <div
-                key={item.id}
-                className='flex gap-4 items-center'
-              >
-                <div className='relative h-20 w-20 bg-gray-50 rounded-xl border p-2'>
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    className='object-contain p-1'
-                  />
-                </div>
-                <div className='flex-1'>
-                  <h3 className='font-black uppercase text-sm leading-tight'>
-                    {item.name}
-                  </h3>
-                  <p className='text-orange-600 font-bold text-xs mt-1'>
-                    ${(item.price / 100).toFixed(2)}
-                  </p>
+            <button
+              onClick={onClose}
+              className='p-2 hover:bg-white/10 rounded-full transition-colors'
+            >
+              <X size={24} />
+            </button>
+          </div>
 
-                  <div className='flex items-center gap-3 mt-3'>
-                    <div className='flex items-center border rounded-lg overflow-hidden'>
+          {/* CART ITEMS */}
+          <div className='flex-grow overflow-y-auto p-6 space-y-6'>
+            {cart.length === 0 ? (
+              <div className='text-center py-20'>
+                <p className='text-gray-400 font-bold uppercase tracking-widest text-sm'>
+                  Your cart is empty
+                </p>
+                <button
+                  onClick={onClose}
+                  className='mt-4 text-orange-600 font-black uppercase text-xs hover:underline'
+                >
+                  Start Shopping
+                </button>
+              </div>
+            ) : (
+              cart.map((item) => (
+                <div
+                  key={item.id}
+                  className='flex gap-4 items-center'
+                >
+                  <div className='relative w-20 h-20 bg-gray-50 rounded-xl border border-gray-100 flex-shrink-0'>
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      className='object-contain p-2'
+                    />
+                  </div>
+                  <div className='flex-grow'>
+                    <h3 className='font-bold text-gray-900 text-sm uppercase leading-tight'>
+                      {item.name}
+                    </h3>
+                    <p className='text-orange-600 font-black text-sm'>
+                      ${(item.price / 100).toFixed(2)}
+                    </p>
+                    <div className='flex items-center gap-3 mt-2'>
+                      <div className='flex items-center border rounded-lg bg-gray-50'>
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
+                          className='p-1 px-2 hover:text-orange-600'
+                        >
+                          <Minus size={14} />
+                        </button>
+                        <span className='text-xs font-bold w-4 text-center'>
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
+                          className='p-1 px-2 hover:text-orange-600'
+                        >
+                          <Plus size={14} />
+                        </button>
+                      </div>
                       <button
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity - 1)
-                        }
-                        className='p-1 px-2 hover:bg-gray-100'
+                        onClick={() => removeFromCart(item.id)}
+                        className='text-gray-400 hover:text-red-500 transition-colors'
                       >
-                        <Minus size={12} />
-                      </button>
-                      <span className='px-2 text-xs font-bold'>
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
-                        }
-                        className='p-1 px-2 hover:bg-gray-100'
-                      >
-                        <Plus size={12} />
+                        <Trash2 size={16} />
                       </button>
                     </div>
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className='text-[10px] font-black uppercase text-gray-400 hover:text-red-500 transition-colors'
-                    >
-                      Remove
-                    </button>
                   </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* FOOTER / TOTALS */}
+          {cart.length > 0 && (
+            <div className='p-6 border-t bg-gray-50 space-y-4'>
+              <div className='space-y-2'>
+                <div className='flex justify-between text-sm font-bold text-gray-500'>
+                  <span>Subtotal</span>
+                  <span>${(subtotal / 100).toFixed(2)}</span>
+                </div>
+                {isDonating && (
+                  <div className='flex justify-between text-sm font-bold text-green-600'>
+                    <span>Crew Donation</span>
+                    <span>${(donationAmount / 100).toFixed(2)}</span>
+                  </div>
+                )}
+                <div className='flex justify-between text-xl font-black uppercase tracking-tighter text-gray-900 pt-2 border-t border-gray-200'>
+                  <span>Total</span>
+                  <span>${(total / 100).toFixed(2)}</span>
                 </div>
               </div>
-            ))
-          )}
 
-          {/* RECOMMENDATIONS SECTION (The part that caused the error) */}
-          <div className='pt-10'>
-            <h4 className='text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4'>
-              Add to your order
-            </h4>
-            <div className='grid grid-cols-1 gap-3'>
-              {recommendations.map((rec) => (
-                <div
-                  key={rec.id}
-                  className='group flex items-center justify-between p-3 rounded-2xl bg-gray-50 hover:bg-orange-50 transition-colors border border-transparent hover:border-orange-100'
-                >
-                  <div className='flex items-center gap-3'>
-                    <div className='h-12 w-12 relative'>
-                      <Image
-                        src={rec.image}
-                        alt={rec.name}
-                        fill
-                        className='object-contain'
-                      />
-                    </div>
-                    <div>
-                      <p className='text-xs font-black uppercase'>{rec.name}</p>
-                      <p className='text-[10px] font-bold text-gray-500'>
-                        ${(rec.price / 100).toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() =>
-                      addToCart({
-                        id: rec.id,
-                        name: rec.name,
-                        price: rec.price,
-                        // FIX: Ensure image is a string. If 'rec.image' is a StaticImageData object,
-                        // use 'rec.image.src'. If it's already a string, just use 'rec.image'.
-                        image:
-                          typeof rec.image === "string"
-                            ? rec.image
-                            : (rec.image as any).src,
-                      })
-                    }
-                    className='p-2 bg-white rounded-lg shadow-sm group-hover:bg-orange-600 group-hover:text-white transition-all'
-                  >
-                    <Plus size={14} />
-                  </button>
-                </div>
-              ))}
+              <Link
+                href='/checkout'
+                onClick={onClose}
+                className='block w-full'
+              >
+                <button className='w-full bg-black text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-orange-600 transition-all hover:scale-[1.02] active:scale-95 shadow-xl'>
+                  Proceed to Checkout <ArrowRight size={20} />
+                </button>
+              </Link>
             </div>
-          </div>
-        </div>
-
-        {/* FOOTER */}
-        <div className='p-6 border-t bg-gray-50/50'>
-          <div className='flex justify-between items-end mb-6'>
-            <span className='text-xs font-black uppercase tracking-widest text-gray-400'>
-              Subtotal
-            </span>
-            <span className='text-3xl font-black tracking-tighter italic'>
-              ${(subtotal / 100).toFixed(2)}
-            </span>
-          </div>
-
-          <Link
-            href='/checkout'
-            onClick={onClose}
-            className='block w-full bg-black text-white text-center py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-orange-600 transition-all shadow-xl shadow-black/10 active:scale-[0.98]'
-          >
-            Checkout Now
-          </Link>
+          )}
         </div>
       </div>
-    </div>
+    </>
   );
 }

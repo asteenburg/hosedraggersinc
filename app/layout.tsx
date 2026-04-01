@@ -1,10 +1,10 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import LocalFont from "next/font/local";
-import Footer from "@/components/footer";
-import { CartProvider } from "./context/CartContext";
-import ClientLayout from "../components/clientLayout";
 import "./globals.css";
+
+import ClientLayout from "../components/clientLayout"; // This will handle Navbar + CartDrawer
 
 // Font Definitions
 const myCustomFont = LocalFont({
@@ -29,9 +29,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang='en'>
       <head>
@@ -43,11 +43,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${myCustomFont.variable} antialiased`}
       >
-        <CartProvider>
-          <ClientLayout>{children}</ClientLayout>
-        </CartProvider>
-
-        <Footer />
+        {/* Wrap dynamic client features inside ClientLayout */}
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

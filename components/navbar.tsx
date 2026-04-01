@@ -5,7 +5,11 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useCart } from "@/app/context/CartContext";
 
-export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
+interface NavbarProps {
+  onCartOpen: () => void; // <- explicitly type the prop
+}
+
+export default function Navbar({ onCartOpen }: NavbarProps) {
   const pathname = usePathname();
   const { cart } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -18,7 +22,6 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Both Home and Shop have dark hero sections at the top
   const isDarkHeroPage = pathname === "/" || pathname === "/shop";
   const useWhiteText = isDarkHeroPage && !isScrolled;
 
@@ -58,7 +61,7 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
         </div>
 
         <button
-          onClick={onCartOpen}
+          onClick={onCartOpen} // ✅ This now matches the typed prop
           className={`relative p-2 ${useWhiteText ? "text-white" : "text-black"}`}
         >
           <svg
