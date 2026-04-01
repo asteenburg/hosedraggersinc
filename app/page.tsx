@@ -179,7 +179,7 @@ export default function Home() {
       className={`min-h-screen bg-gradient-to-b from-black text-gray-900 ${HoseFont.variable} selection:bg-orange-500 selection:text-white`}
     >
       {/* FLOATING CART UI - Elevated Z-index and pointer control */}
-      <div className='fixed bottom-8 right-8 z-[100] flex flex-col items-end gap-4'>
+      {/*<div className='fixed bottom-8 right-8 z-[100] flex flex-col items-end gap-4'>
         <button
           onClick={toggleDonation}
           className={`flex items-center gap-3 p-3 rounded-2xl shadow-xl border transition-all ${isDonating ? "bg-orange-500 border-orange-400 text-white" : "bg-white border-gray-100 text-gray-600 hover:bg-gray-50"}`}
@@ -207,7 +207,7 @@ export default function Home() {
             </span>
           )}
         </button>
-      </div>
+      </div>*/}
 
       {/* HERO SECTION */}
       <section className='relative min-h-[90vh] flex flex-col lg:flex-row items-center justify-between overflow-hidden bg-black pt-20 lg:pt-0'>
