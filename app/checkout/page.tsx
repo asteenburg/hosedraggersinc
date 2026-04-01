@@ -1,23 +1,31 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
+import Script from "next/script";
+import { useState } from "react";
 import { useCart } from "@/app/context/CartContext";
 import SquarePaymentForm from "@/components/SquarePaymentForm";
-import Link from "next/link";
-import { useState } from "react";
-import Script from "next/script"; // Import the Script component
 
 export default function CheckoutPage() {
   const { cart, clearCart, isDonating, toggleDonation } = useCart();
   const [emailOptIn, setEmailOptIn] = useState(false);
   const [email, setEmail] = useState("");
-  const [isSdkLoaded, setIsSdkLoaded] = useState(false); // Track SDK status
+  const [isSdkLoaded, setIsSdkLoaded] = useState(false);
+
+  // SHIPPING / CONTACT INFO
+  const [shippingName, setShippingName] = useState("");
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [shippingCity, setShippingCity] = useState("");
+  const [shippingProvince, setShippingProvince] = useState("");
+  const [shippingPostal, setShippingPostal] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
 
   const subtotal = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
-  const donationAmount = isDonating ? 500 : 0; // $5 donation in cents
+  const donationAmount = isDonating ? 500 : 0;
   const checkoutTotal = subtotal + donationAmount;
 
   async function handlePaymentSuccess() {
@@ -49,7 +57,7 @@ export default function CheckoutPage() {
 
   return (
     <>
-      {/* Load Square SDK only on this page */}
+      {/* Square SDK */}
       <Script
         src='https://web.squarecdn.com/v1/square.js'
         strategy='afterInteractive'
@@ -67,7 +75,6 @@ export default function CheckoutPage() {
             <h2 className='text-xl font-black uppercase tracking-tight mb-6'>
               Order Summary
             </h2>
-
             <ul className='space-y-4 mb-6'>
               {cart.map((item) => (
                 <li
@@ -98,7 +105,7 @@ export default function CheckoutPage() {
               ))}
             </ul>
 
-            {/* DONATION OPTION */}
+            {/* DONATION */}
             <div
               className={`p-4 rounded-2xl border transition-all duration-300 mb-6 ${
                 isDonating
@@ -127,15 +134,18 @@ export default function CheckoutPage() {
                     <polyline points='20 6 9 17 4 12'></polyline>
                   </svg>
                 </div>
-
                 <div className='ml-3'>
                   <p
-                    className={`text-sm font-black uppercase tracking-tight leading-none ${isDonating ? "text-white" : "text-gray-900"}`}
+                    className={`text-sm font-black uppercase tracking-tight leading-none ${
+                      isDonating ? "text-white" : "text-gray-900"
+                    }`}
                   >
                     Add $5.00 Donation
                   </p>
                   <p
-                    className={`text-[10px] font-bold uppercase mt-1 ${isDonating ? "text-orange-100" : "text-orange-700"}`}
+                    className={`text-[10px] font-bold uppercase mt-1 ${
+                      isDonating ? "text-orange-100" : "text-orange-700"
+                    }`}
                   >
                     Help support our cause
                   </p>
@@ -187,7 +197,58 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* PAYMENT SECTION */}
+          {/* SHIPPING INFO */}
+          <div className='bg-white p-6 rounded-3xl shadow-xl border border-gray-100 mb-6'>
+            <h2 className='text-xl font-black uppercase tracking-tight mb-4'>
+              Shipping Information
+            </h2>
+            <div className='flex flex-col gap-4'>
+              <input
+                type='text'
+                placeholder='Full Name'
+                value={shippingName}
+                onChange={(e) => setShippingName(e.target.value)}
+                className='border p-2 rounded'
+              />
+              <input
+                type='text'
+                placeholder='Address'
+                value={shippingAddress}
+                onChange={(e) => setShippingAddress(e.target.value)}
+                className='border p-2 rounded'
+              />
+              <input
+                type='text'
+                placeholder='City'
+                value={shippingCity}
+                onChange={(e) => setShippingCity(e.target.value)}
+                className='border p-2 rounded'
+              />
+              <input
+                type='text'
+                placeholder='Province'
+                value={shippingProvince}
+                onChange={(e) => setShippingProvince(e.target.value)}
+                className='border p-2 rounded'
+              />
+              <input
+                type='text'
+                placeholder='Postal Code'
+                value={shippingPostal}
+                onChange={(e) => setShippingPostal(e.target.value)}
+                className='border p-2 rounded'
+              />
+              <input
+                type='tel'
+                placeholder='Phone Number'
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                className='border p-2 rounded'
+              />
+            </div>
+          </div>
+
+          {/* PAYMENT */}
           <div className='bg-white p-8 rounded-3xl shadow-xl border border-gray-100'>
             <div className='flex items-center gap-2 mb-6'>
               <div className='h-2 w-2 bg-orange-600 rounded-full animate-pulse' />
@@ -196,13 +257,18 @@ export default function CheckoutPage() {
               </h2>
             </div>
 
-            {/* Only render the form when the SDK is ready */}
             {isSdkLoaded ? (
               <SquarePaymentForm
                 amount={checkoutTotal}
                 email={email}
                 emailOptIn={emailOptIn}
                 isDonating={isDonating}
+                shippingName={shippingName}
+                shippingAddress={shippingAddress}
+                shippingCity={shippingCity}
+                shippingProvince={shippingProvince}
+                shippingPostal={shippingPostal}
+                contactPhone={contactPhone}
                 onPaymentSuccess={handlePaymentSuccess}
               />
             ) : (
