@@ -3,75 +3,102 @@ import crypto from "crypto";
 
 export async function POST(req: Request) {
   try {
-    // 1. Parse the request body safely
+    // 1. Parse request body
     const body = await req.json();
     const { sourceId, amount, email, isDonating } = body;
 
-    // 2. Validate input
     if (!sourceId || !amount) {
       return NextResponse.json(
         { error: "Missing sourceId or amount" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
-    // 3. Get Secret Key from Vercel Env Vars
+    // 2. Env vars
     const secretKey = process.env.SQUARE_ACCESS_TOKEN;
 
     if (!secretKey) {
-      console.error("❌ SQUARE_ACCESS_TOKEN is not defined in Vercel.");
+      console.error("❌ Missing SQUARE_ACCESS_TOKEN");
       return NextResponse.json(
         { error: "Server configuration error" },
-        { status: 500 },
+        { status: 500 }
       );
     }
 
-    // 4. Square Production Endpoint
+    // ⚠️ IMPORTANT: switch this if you're using sandbox
     const squareUrl = "https://connect.squareup.com/v2/payments";
+    // const squareUrl = "https://connect.squareupsandbox.com/v2/payments";
 
-    // 5. Build Square Request
     const squareRequest = {
       idempotency_key: crypto.randomBytes(12).toString("hex"),
       source_id: sourceId,
       amount_money: {
-        amount: Math.round(amount), // Ensure integer for cents
+        amount: Math.round(amount),
         currency: "CAD",
       },
       buyer_email_address: email || undefined,
-      note: isDonating ? "Includes $5 Donation" : "Hose Draggers Purchase",
+      note: isDonating
+        ? "Includes $5 Donation"
+        : "Hose Draggers Purchase",
     };
 
-    // 6. Execute Payment
+    console.log("➡️ Sending to Square:", squareRequest);
+
+    // 3. Call Square
     const response = await fetch(squareUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${secretKey}`,
-        "Square-Version": "2025-03-12", // Updated to current stable
+        "Square-Version": "2025-03-12",
       },
       body: JSON.stringify(squareRequest),
     });
 
-    const result = await response.json();
+    // 4. Read raw response FIRST
+    const rawText = await response.text();
+    console.log("⬅️ RAW Square response:", rawText);
 
-    if (!response.ok) {
-      console.error("❌ Square API Error:", result.errors);
+    let result;
+
+    try {
+      result = JSON.parse(rawText);
+    } catch (parseError) {
+      console.error("❌ Failed to parse Square response as JSON");
       return NextResponse.json(
-        { error: result.errors?.[0]?.detail || "Payment failed" },
-        { status: response.status },
+        {
+          error: "Invalid response from payment processor",
+          raw: rawText, // helpful for debugging
+        },
+        { status: 500 }
       );
     }
 
-    // 7. Success
+    // 5. Handle Square errors
+    if (!response.ok) {
+      console.error("❌ Square API Error:", result?.errors);
+      return NextResponse.json(
+        {
+          error:
+            result?.errors?.[0]?.detail ||
+            "Payment failed",
+        },
+        { status: response.status }
+      );
+    }
+
+    // 6. Success
+    console.log("✅ Payment success:", result.payment?.id);
+
     return NextResponse.json({
       success: true,
       paymentId: result.payment.id,
     });
   } catch (error) {
-    console.error("Internal Server Error:", error);
+    console.error("❌ Internal Server Error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
