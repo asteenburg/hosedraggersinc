@@ -3,66 +3,72 @@ import crypto from "crypto";
 
 export async function POST(req: Request) {
   try {
-    const { sourceId, amount, email, isDonating } = await req.json();
+    // 1. Parse the request body safely
+    const body = await req.json();
+    const { sourceId, amount, email, isDonating } = body;
 
-    // Basic validation
-    if (!sourceId || !amount || amount <= 0) {
+    // 2. Validate input
+    if (!sourceId || !amount) {
       return NextResponse.json(
-        { error: "Invalid payment data" },
+        { error: "Missing sourceId or amount" },
         { status: 400 },
       );
     }
 
-    const token = process.env.SQUARE_ACCESS_TOKEN;
+    // 3. Get Secret Key from Vercel Env Vars
+    const secretKey = process.env.SQUARE_ACCESS_TOKEN;
 
-    // Check for credentials
-    if (!token) {
-      console.error("❌ Missing SQUARE_ACCESS_TOKEN");
+    if (!secretKey) {
+      console.error("❌ SQUARE_ACCESS_TOKEN is not defined in Vercel.");
       return NextResponse.json(
-        { error: "Internal Server Error" },
+        { error: "Server configuration error" },
         { status: 500 },
       );
     }
 
-    // Use 'connect.squareup.com' for LIVE,
+    // 4. Square Production Endpoint
     const squareUrl = "https://connect.squareup.com/v2/payments";
 
-    const body = {
+    // 5. Build Square Request
+    const squareRequest = {
       idempotency_key: crypto.randomBytes(12).toString("hex"),
-      source_id: sourceId, // The card token from your frontend
+      source_id: sourceId,
       amount_money: {
-        amount: amount, // Amount in cents
-        currency: "CAD", // Matching your previous currency
+        amount: Math.round(amount), // Ensure integer for cents
+        currency: "CAD",
       },
-      buyer_email_address: email,
-      note: isDonating ? "Includes $5 Donation" : "Sticker Order",
+      buyer_email_address: email || undefined,
+      note: isDonating ? "Includes $5 Donation" : "Hose Draggers Purchase",
     };
 
+    // 6. Execute Payment
     const response = await fetch(squareUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-        "Square-Version": "22025-10-16", // Good practice to include version
+        Authorization: `Bearer ${secretKey}`,
+        "Square-Version": "2025-03-12", // Updated to current stable
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(squareRequest),
     });
 
-    const data = await response.json();
+    const result = await response.json();
 
     if (!response.ok) {
-      console.error("❌ Square API error:", data.errors);
+      console.error("❌ Square API Error:", result.errors);
       return NextResponse.json(
-        { error: data.errors?.[0]?.detail || "Payment failed" },
-        { status: 400 },
+        { error: result.errors?.[0]?.detail || "Payment failed" },
+        { status: response.status },
       );
     }
 
-    // Success!
-    console.log("✅ Payment Created:", data.payment.id);
-    return NextResponse.json({ success: true, paymentId: data.payment.id });
-  } catch (error: any) {
-    console.error("Unexpected server error:", error);
+    // 7. Success
+    return NextResponse.json({
+      success: true,
+      paymentId: result.payment.id,
+    });
+  } catch (error) {
+    console.error("Internal Server Error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },
