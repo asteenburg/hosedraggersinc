@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
+import LocalFont from "next/font/local";
 import Footer from "@/components/footer";
 import { CartProvider } from "./context/CartContext";
-import LocalFont from "next/font/local";
-import "./globals.css";
 import ClientLayout from "../components/clientLayout";
+import "./globals.css";
 
+// Font Definitions
 const myCustomFont = LocalFont({
   src: "./fonts/Billy_Ohio.ttf",
   variable: "--font-my-custom-font",
@@ -41,15 +41,12 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${myCustomFont.variable} antialiased`}
       >
-        <Script
-          src='https://sandbox.web.squarecdn.com/v1/square.js'
-          strategy='afterInteractive'
-        />
-
         <CartProvider>
-          <ClientLayout>{children}</ClientLayout>
+          <ClientLayout>
+            {children}
+          </ClientLayout>
         </CartProvider>
 
         <Footer />
