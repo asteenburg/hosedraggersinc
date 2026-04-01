@@ -14,16 +14,17 @@ export type CartItem = {
   id: string;
   name: string;
   price: number; // in cents
-  image: any;
+  image: string; // Changed to string for consistency with Image src
   quantity: number;
 };
 
 type CartContextType = {
   cart: CartItem[];
-  total: number; // total in cents
-  isDonating: boolean; // NEW
-  donationAmount: number; // NEW
-  toggleDonation: () => void; // NEW
+  subtotal: number; // Sum of items only
+  total: number;    // Subtotal + donation
+  isDonating: boolean;
+  donationAmount: number;
+  toggleDonation: () => void;
   addToCart: (item: Omit<CartItem, "quantity">) => void;
   updateQuantity: (id: string, quantity: number) => void;
   removeFromCart: (id: string) => void;
@@ -38,12 +39,12 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [isDonating, setIsDonating] = useState(false); // NEW
+  const [isDonating, setIsDonating] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
   const donationAmount = 500; // $5.00 in cents
 
-  // 1. Load cart & donation from localStorage on mount
+  // 1. Load from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem("cart-storage");
     const savedDonation = localStorage.getItem("donation-storage");
@@ -63,7 +64,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setIsInitialized(true);
   }, []);
 
-  // 2. Save cart & donation to localStorage whenever it changes
+  // 2. Save to localStorage
   useEffect(() => {
     if (isInitialized) {
       localStorage.setItem("cart-storage", JSON.stringify(cart));
@@ -71,10 +72,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [cart, isDonating, isInitialized]);
 
-  /* TOGGLE DONATION */
   const toggleDonation = () => setIsDonating((prev) => !prev);
 
-  /* ADD ITEM */
   const addToCart = (item: Omit<CartItem, "quantity">) => {
     setCart((prev) => {
       const existing = prev.find((p) => p.id === item.id);
@@ -87,7 +86,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  /* UPDATE QUANTITY */
   const updateQuantity = (id: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(id);
@@ -98,38 +96,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  /* REMOVE ITEM */
   const removeFromCart = (id: string) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
-  /* CLEAR CART */
   const clearCart = () => {
     setCart([]);
-    setIsDonating(false); // Reset donation on clear
+    setIsDonating(false);
   };
 
-  /* TOTAL CALCULATION */
-  // The base total of products
+  /* CALCULATIONS */
   const subtotal = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0,
+    0
   );
-  // Add donation if active
+  
   const total = isDonating ? subtotal + donationAmount : subtotal;
 
   return (
     <CartContext.Provider
       value={{
         cart,
+        subtotal, // Added subtotal to the context
+        total,
+        isDonating,
+        donationAmount,
+        toggleDonation,
         addToCart,
         updateQuantity,
         removeFromCart,
         clearCart,
-        total,
-        isDonating, // EXPOSED
-        donationAmount, // EXPOSED
-        toggleDonation, // EXPOSED
       }}
     >
       {children}
