@@ -14,16 +14,17 @@ export type CartItem = {
   id: string;
   name: string;
   price: number; // in cents
-  image: string; // Changed to string for consistency with Image src
+  image: string; // URL path like "/images/sticker.png"
   quantity: number;
 };
 
 type CartContextType = {
   cart: CartItem[];
-  subtotal: number; // Sum of items only
-  total: number; // Subtotal + donation
+  subtotal: number;
+  total: number;
   isDonating: boolean;
   donationAmount: number;
+  isInitialized: boolean; // Add this to the type
   toggleDonation: () => void;
   addToCart: (item: Omit<CartItem, "quantity">) => void;
   updateQuantity: (id: string, quantity: number) => void;
@@ -31,27 +32,25 @@ type CartContextType = {
   clearCart: () => void;
 };
 
-/* ---------------- CONTEXT ---------------- */
-
 const CartContext = createContext<CartContextType | undefined>(undefined);
-
-/* ---------------- PROVIDER ---------------- */
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isDonating, setIsDonating] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const donationAmount = 500; // $5.00 in cents
+  const donationAmount = 500;
 
-  // 1. Load from localStorage on mount
+  // 1. Load from localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem("cart-storage");
     const savedDonation = localStorage.getItem("donation-storage");
 
     if (savedCart) {
       try {
-        setCart(JSON.parse(savedCart));
+        const parsedCart = JSON.parse(savedCart);
+        // Safety check: ensure every item has a valid image string
+        setCart(parsedCart);
       } catch (error) {
         console.error("Failed to load cart:", error);
       }
@@ -79,7 +78,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existing = prev.find((p) => p.id === item.id);
       if (existing) {
         return prev.map((p) =>
-          p.id === item.id ? { ...p, quantity: p.quantity + 1 } : p,
+          p.id === item.id ? { ...p, quantity: p.quantity + 1 } : p
         );
       }
       return [...prev, { ...item, quantity: 1 }];
@@ -92,7 +91,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     setCart((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
+      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
     );
   };
 
@@ -103,24 +102,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => {
     setCart([]);
     setIsDonating(false);
+    localStorage.removeItem("cart-storage"); // Explicitly wipe storage
   };
 
-  /* CALCULATIONS */
-  const subtotal = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
-
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const total = isDonating ? subtotal + donationAmount : subtotal;
 
   return (
     <CartContext.Provider
       value={{
         cart,
-        subtotal, // Added subtotal to the context
+        subtotal,
         total,
         isDonating,
         donationAmount,
+        isInitialized,
         toggleDonation,
         addToCart,
         updateQuantity,
@@ -135,8 +131,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 export function useCart() {
   const context = useContext(CartContext);
-  if (!context) {
-    throw new Error("useCart must be used inside CartProvider");
-  }
+  if (!context) throw new Error("useCart must be used inside CartProvider");
   return context;
 }
