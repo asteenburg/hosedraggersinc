@@ -17,7 +17,7 @@ function PrivacyPolicyContent() {
       <h2>Hose Draggers Inc. Privacy Policy</h2>
 
       <p>
-        <strong>Last updated: [[Date]]</strong>
+        <strong>Last updated: 04/01/2026</strong>
       </p>
 
       <p>
