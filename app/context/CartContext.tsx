@@ -78,7 +78,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existing = prev.find((p) => p.id === item.id);
       if (existing) {
         return prev.map((p) =>
-          p.id === item.id ? { ...p, quantity: p.quantity + 1 } : p
+          p.id === item.id ? { ...p, quantity: p.quantity + 1 } : p,
         );
       }
       return [...prev, { ...item, quantity: 1 }];
@@ -91,7 +91,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     setCart((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
+      prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
     );
   };
 
@@ -105,7 +105,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("cart-storage"); // Explicitly wipe storage
   };
 
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
   const total = isDonating ? subtotal + donationAmount : subtotal;
 
   return (
