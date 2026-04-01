@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import LocalFont from "next/font/local";
 import "./globals.css";
-
+import CookieBanner from "@/components/CookieBanner";
 import ClientLayout from "../components/clientLayout"; // This will handle Navbar + CartDrawer
 
 // Font Definitions
@@ -49,6 +49,7 @@ export default function RootLayout({
       >
         {/* Wrap dynamic client features inside ClientLayout */}
         <ClientLayout>{children}</ClientLayout>
+        <CookieBanner />
       </body>
     </html>
   );
