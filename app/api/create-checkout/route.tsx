@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     const squareUrl = "https://connect.squareup.com/v2/payments";
 
     const body = {
-      idempotency_key: crypto.randomUUID(),
+      idempotency_key: crypto.randomBytes(12).toString("hex"),
       source_id: sourceId, // The card token from your frontend
       amount_money: {
         amount: amount, // Amount in cents
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-        "Square-Version": "2024-10-17", // Good practice to include version
+        "Square-Version": "22025-10-16", // Good practice to include version
       },
       body: JSON.stringify(body),
     });
