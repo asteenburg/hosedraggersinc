@@ -62,7 +62,7 @@ const SuccessPage = () => {
             href='/'
             className='w-full py-4 bg-transparent border border-white/10 text-gray-300 font-semibold rounded-xl hover:bg-white/5 hover:text-white transition-all duration-200'
           >
-            Back to Home
+            Return to Quarters
           </Link>
         </div>
 
