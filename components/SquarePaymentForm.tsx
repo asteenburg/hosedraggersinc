@@ -52,7 +52,11 @@ export default function SquarePaymentForm({
   }, []);
 
   async function handleCheckout() {
-    console.log("🔥 Checkout clicked");
+    console.log({
+      cardReady,
+      hasCard: !!cardRef.current,
+      isProcessing,
+    });
     if (!cardReady || !cardRef.current || isProcessing) return;
 
     setIsProcessing(true);
