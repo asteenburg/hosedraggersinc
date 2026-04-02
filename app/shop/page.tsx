@@ -37,43 +37,43 @@ const products: Product[] = [
   {
     id: "ddlmuertos",
     name: "Dia De Los Muertos",
-    price: 300,
+    price: 900,
     image: DiaDeMuertos,
   },
   {
     id: "ddlmuertos-cigar",
     name: "Dia De Los Muertos (Cigar)",
-    price: 350,
+    price: 900,
     image: DiaDeMuertosCigar,
   },
   {
     id: "ddlmuertos-nozzle",
     name: "Dia De Los Muertos (Nozzle)",
-    price: 350,
+    price: 900,
     image: DiaDeMuertosNozzle,
   },
   {
     id: "ddlmuertos-chariot",
     name: "Dia De Los Muertos (Mahalo)",
-    price: 400,
+    price: 900,
     image: DiaDeMuertosChariot,
   },
   {
     id: "ddlmuertos-axe",
     name: "Dia De Los Muertos (Axe)",
-    price: 400,
+    price: 900,
     image: DiaDeMuertosAxe,
   },
   {
     id: "ddlmuertos-axe-white",
     name: "Dia De Los Muertos (Axe)",
-    price: 400,
+    price: 900,
     image: DiaDeMuertosAxeW,
   },
   {
     id: "ddlmuertos-pointing",
     name: "Dia De Los Muertos (There)",
-    price: 400,
+    price: 900,
     image: DiaDeMuertosPoint,
   },
 ];
@@ -88,13 +88,23 @@ export default function ShopPage() {
         <div className='max-w-7xl mx-auto'>
           <Link
             href='/'
-            className='inline-flex items-center gap-2 text-orange-500 font-bold uppercase text-xs mb-8'
+            className='mt-5.5 inline-flex items-center gap-2 text-orange-500 font-bold uppercase text-xs mb-8'
           >
-            <ArrowLeft size={16} /> Back to Home
+            <ArrowLeft
+              size={16}
+              className='transition-transform group-hover:scale-110'
+            />
+            <span>Back to Home</span>
           </Link>
-          <h1 className='text-5xl font-black uppercase tracking-tighter'>
-            The Lineup
-          </h1>
+
+          <div className='flex flex-col md:flex-row md:items-end justify-between gap-4'>
+            <h1 className='text-6xl lg:text-8xl font-black uppercase tracking-tighter leading-none'>
+              The <span className='text-orange-600'>Lineup</span>
+            </h1>
+            <p className='text-gray-500 font-bold uppercase tracking-widest text-sm pb-2'>
+              Premium High-Heat Decals
+            </p>
+          </div>
         </div>
       </div>
 
