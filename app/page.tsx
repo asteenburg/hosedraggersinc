@@ -7,6 +7,7 @@ import { useCart } from "./context/CartContext";
 import ProductModal from "../components/ProductModal";
 import CartDrawer from "../components/CartDrawer";
 import LocalFont from "next/font/local";
+import Mission from "./mission";
 import {
   ShoppingCart,
   Heart,
@@ -274,6 +275,7 @@ export default function Home() {
         </div>
       </section>
 
+      <Mission />
       <DCDescription />
 
       {/* Modals & Drawer */}
