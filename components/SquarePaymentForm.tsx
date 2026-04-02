@@ -144,7 +144,7 @@ export default function SquarePaymentForm({
         className={`w-full py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg ${
           isProcessing
             ? "bg-gray-400 cursor-not-allowed"
-            : "bg-orange-600 hover:bg-black text-white hover:scale-[1.02] active:scale-95"
+            : "bg-red-600 hover:bg-black text-white hover:scale-[1.02] active:scale-95"
         }`}
       >
         {isProcessing ? "Processing..." : `Pay $${(amount / 100).toFixed(2)}`}
