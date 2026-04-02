@@ -39,6 +39,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
         name: `${product.name} (${cutType})`,
         price: finalPrice,
         image: product.image,
+        quantity: 1, // <--- Add this line here
       });
     }
 

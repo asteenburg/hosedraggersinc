@@ -15,10 +15,9 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     cart,
     updateQuantity,
     removeFromCart,
-    subtotal,
     isDonating,
     donationAmount,
-    total,
+    subtotal: total, // <--- This maps subtotal to the name 'total'
   } = useCart();
 
   return (
@@ -130,7 +129,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <div className='space-y-2'>
                 <div className='flex justify-between text-sm font-bold text-gray-500'>
                   <span>Subtotal</span>
-                  <span>${(subtotal / 100).toFixed(2)}</span>
+                  <span>${(total / 100).toFixed(2)}</span>
                 </div>
                 {isDonating && (
                   <div className='flex justify-between text-sm font-bold text-green-600'>

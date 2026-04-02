@@ -7,7 +7,8 @@ import { useCart } from "@/app/context/CartContext";
 import SquarePaymentForm from "@/components/SquarePaymentForm";
 
 export default function CartPage() {
-  const { cart, total, updateQuantity, removeFromCart, clearCart } = useCart();
+  const { cart, subtotal, updateQuantity, removeFromCart, clearCart } =
+    useCart();
   const router = useRouter();
 
   // The logic to run once the Square payment is successful
@@ -87,12 +88,14 @@ export default function CartPage() {
             <h2 className='text-xl font-bold'>Order Summary</h2>
             <p className='text-gray-700'>
               Total:{" "}
-              <span className='font-semibold'>${(total / 100).toFixed(2)}</span>
+              <span className='font-semibold'>
+                ${(subtotal / 100).toFixed(2)}
+              </span>
             </p>
 
             {/* Now passing the required onPaymentSuccess prop */}
             <SquarePaymentForm
-              amount={total}
+              amount={subtotal}
               onPaymentSuccess={handlePaymentSuccess}
             />
 

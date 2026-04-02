@@ -3,10 +3,10 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { useCart } from "../context/CartContext";
+import { useCart } from "./../context/CartContext";
 import { ShoppingCart, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import ProductModal from "../../components/ProductModal";
+import ProductModal from "@/components/ProductModal";
 
 // FIXED: Defined Interface to remove 'any' errors
 interface Product {
@@ -126,7 +126,7 @@ export default function ShopPage() {
                   </p>
                 </div>
                 <button
-                  onClick={() => addToCart(product)}
+                  onClick={() => addToCart({ ...product, quantity: 1 })}
                   className='bg-black text-white p-3 rounded-2xl hover:bg-orange-600'
                 >
                   <ShoppingCart size={20} />
