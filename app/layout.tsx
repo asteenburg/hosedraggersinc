@@ -39,6 +39,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en'>
+      <title>Hose Draggers Inc | Premium Firefighter Stickers</title>
       <head>
         <link
           rel='stylesheet'
