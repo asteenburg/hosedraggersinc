@@ -30,7 +30,7 @@ function ClientContent({ children }: { children: React.ReactNode }) {
       <main className='relative z-0'>{children}</main>
 
       {/* Floating UI - High Z-index but lower than Drawer */}
-      <div className='fixed bottom-8 right-8 z-[90] flex flex-col items-end gap-4 pointer-events-none'>
+      <div className='fixed bottom-28 right-8 z-[90] flex flex-col items-end gap-4 pointer-events-none'>
         <button
           onClick={toggleDonation}
           className={`pointer-events-auto flex items-center gap-3 p-3 rounded-2xl shadow-xl border transition-all ${
