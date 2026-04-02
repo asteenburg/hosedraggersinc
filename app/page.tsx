@@ -107,7 +107,7 @@ function DCDescription() {
   return (
     <section
       ref={sectionRef}
-      className='flex flex-col md:flex-row px-6 bg-white/30 backdrop-blur-xl lg:px-20 mt-20 py-16 gap-12 items-center rounded-[2rem] border border-white/40 shadow-2xl max-w-7xl md:mx-8 mx-auto mb-20 transition-opacity duration-300'
+      className='flex flex-col md:flex-row px-6 bg-white/30 backdrop-blur-xl lg:px-20 mt-20 py-16 gap-12 items-center rounded-[2rem] border border-white/40 shadow-2xl max-w-7xl mx-auto mb-20 transition-opacity duration-300'
       style={{ opacity }}
     >
       <div className='flex-shrink-0 relative group'>
