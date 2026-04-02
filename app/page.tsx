@@ -45,43 +45,43 @@ const products = [
   {
     id: "ddlmuertos",
     name: "Dia De Los Muertos",
-    price: 300,
+    price: 900,
     image: DiaDeMuertos,
   },
   {
     id: "ddlmuertos-cigar",
     name: "Dia De Los Muertos (Cigar)",
-    price: 350,
+    price: 900,
     image: DiaDeMuertosCigar,
   },
   {
     id: "ddlmuertos-nozzle",
     name: "Dia De Los Muertos (Nozzle)",
-    price: 350,
+    price: 900,
     image: DiaDeMuertosNozzle,
   },
   {
     id: "ddlmuertos-chariot",
     name: "Dia De Los Muertos (Mahalo)",
-    price: 400,
+    price: 900,
     image: DiaDeMuertosChariot,
   },
   {
     id: "ddlmuertos-axe",
     name: "Dia De Los Muertos (Axe)",
-    price: 400,
+    price: 900,
     image: DiaDeMuertosAxe,
   },
   {
     id: "ddlmuertos-axe-white",
     name: "Dia De Los Muertos (Axe)",
-    price: 400,
+    price: 900,
     image: DiaDeMuertosAxeW,
   },
   {
     id: "ddlmuertos-pointing",
     name: "Dia De Los Muertos (There)",
-    price: 400,
+    price: 900,
     image: DiaDeMuertosPoint,
   },
 ];
@@ -211,7 +211,7 @@ export default function Home() {
       </div>*/}
 
       {/* HERO SECTION */}
-      <section className='relative min-h-[90vh] flex flex-col lg:flex-row items-center justify-between overflow-hidden bg-black pt-20 lg:pt-0'>
+      <section className='relative min-h-[75vh] flex flex-col lg:flex-row items-center justify-between overflow-hidden bg-black pt-20 lg:pt-0'>
         <div
           className='absolute top-0 right-0 w-[800px] h-[800px] bg-orange-600/10 blur-[150px] rounded-full'
           style={{
@@ -219,7 +219,7 @@ export default function Home() {
           }}
         />
         <div className='relative mt-24 z-30 px-6 lg:pl-20 lg:w-[45%] text-center lg:text-left'>
-          <h1 className='text-6xl lg:text-[8rem] xl:text-[10rem] text-white font-black tracking-tighter uppercase leading-[0.8]'>
+          <h1 className='text-6xl lg:text-[7rem] xl:text-[7rem] text-white font-black tracking-tighter uppercase leading-[0.8]'>
             Stickers <br /> That Match Your <br />
             <span
               className={`${HoseFont.className} text-orange-500 normal-case text-8xl lg:text-[12rem] xl:text-[14rem] inline-block -rotate-3 mt-4`}
@@ -238,7 +238,7 @@ export default function Home() {
         </div>
         <div className='relative z-20 lg:w-[60%] h-full flex items-center lg:justify-end'>
           <div
-            className='relative w-full aspect-square lg:h-[95vh] lg:w-[120%] lg:-mr-[15%] transition-transform'
+            className='relative w-full aspect-square lg:h-[95vh] lg:w-[120%] lg:-mr-[2%] transition-transform'
             style={{
               transform: `translate(${mousePos.x * 8}px, ${mousePos.y * 8}px)`,
             }}
