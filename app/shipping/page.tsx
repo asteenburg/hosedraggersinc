@@ -1,7 +1,7 @@
 export default function ShippingReturns() {
   return (
-    <main className="max-w-4xl mt-25 mx-auto px-6 py-12 text-sm md:text-base">
-      <h1 className="text-3xl font-bold mb-6">Shipping & Returns</h1>
+    <main className="max-w-4xl mx-auto px-6 py-12 text-sm md:text-base">
+      <h1 className="text-3xl font-bold mt-12 mb-6">Shipping & Returns</h1>
 
       {/* Shipping Policy */}
       <section className="mb-10">
