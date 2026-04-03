@@ -22,6 +22,13 @@ export default function Footer() {
           </li>
         </ul>
       </div>
+      <div className=''>
+        <ul>
+          <li>
+          <Link href='/shipping' className='text-sm hover:underline'>
+            <i className='fas fa-truck mr-1'></i> Shipping & Returns</li>
+        </ul>
+      </div>
       <div>
         <ul>
           <li>
