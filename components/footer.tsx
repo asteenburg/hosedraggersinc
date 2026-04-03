@@ -11,7 +11,7 @@ export default function Footer() {
               href='/cart'
               className='text-sm hover:underline'
             >
-              <i className='fas fa-shopping-cart mr-1'></i> Checkout
+              <i className='fa-solid fa-shopping-cart mr-1'></i> Checkout
             </Link>
             <Link
               href='/shop'
@@ -26,7 +26,7 @@ export default function Footer() {
         <ul>
           <li>
           <Link href='/shipping' className='text-sm hover:underline'>
-            <i className='fas fa-truck mr-1'></i> Shipping & Returns</li>
+            <i className="fa-solid fa-truck mr-1"></i> Shipping & Returns</li>
         </ul>
       </div>
       <div>
